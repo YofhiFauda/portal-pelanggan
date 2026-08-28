@@ -3,9 +3,9 @@ services:
     build:
       context: .
       target: builder
-    command: npm run dev
+    command: npm run dev -- --port 3001
     ports:
-      - "3000:3000"
+      - "3001:3001"
     volumes:
       - .:/app
       - /app/node_modules
@@ -14,3 +14,16 @@ services:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
+    networks:
+      - default
+      - whusnet_network
+
+# Satu network sama Laravel (whusnet-operasional) biar Next.js bisa manggil
+# Laravel lewat nama container (http://whusnet-nginx/...), bukan localhost
+# (localhost di dalam container ini nunjuk ke dirinya sendiri, BUKAN host
+# Windows atau container lain — itu sumber ECONNREFUSED kalau ke-pakai).
+networks:
+  default: {}
+  whusnet_network:
+    external: true
+    name: whusnet-operasional_app_network
