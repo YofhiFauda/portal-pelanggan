@@ -1,0 +1,142 @@
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "$description": "Portal Pelanggan Whusnet — consumer-mobile page-specific override. Brand color source of truth confirmed by product owner (2026-08-29): Sky Blue #0284C7, matching whusnet-operasional/design-system/whusnet-operasional/Design.md (v2.0.0, 'Modern Sky Blue & Slate') — NOT the indigo palette in the separate 'Design System.md' (v4.0.0) doc, which is superseded/inconsistent with the confirmed brand. Typography/motion-restraint/anti-decoration principles are still SHARED with the operasional design docs for brand consistency; radius/spacing/density/shell are ADAPTED for a consumer mobile app (no NOC/table density needs).",
+
+  "primitive": {
+    "color": {
+      "sky": {
+        "50":  { "$value": "#F0F9FF", "$type": "color" },
+        "100": { "$value": "#E0F2FE", "$type": "color" },
+        "200": { "$value": "#BAE6FD", "$type": "color" },
+        "300": { "$value": "#7DD3FC", "$type": "color" },
+        "400": { "$value": "#38BDF8", "$type": "color" },
+        "500": { "$value": "#0EA5E9", "$type": "color" },
+        "600": { "$value": "#0284C7", "$type": "color", "$note": "Whusnet brand primary — SAME hex as operasional --color-primary (Design.md v2, Modern Sky Blue & Slate). Never used as gradient stop." },
+        "700": { "$value": "#0369A1", "$type": "color" },
+        "900": { "$value": "#0C4A6E", "$type": "color" }
+      },
+      "slate": {
+        "50":  { "$value": "#F8FAFC", "$type": "color" },
+        "100": { "$value": "#F1F5F9", "$type": "color" },
+        "200": { "$value": "#E2E8F0", "$type": "color" },
+        "300": { "$value": "#CBD5E1", "$type": "color" },
+        "400": { "$value": "#94A3B8", "$type": "color" },
+        "500": { "$value": "#64748B", "$type": "color" },
+        "600": { "$value": "#475569", "$type": "color" },
+        "700": { "$value": "#334155", "$type": "color" },
+        "800": { "$value": "#1E293B", "$type": "color" },
+        "900": { "$value": "#0F172A", "$type": "color" },
+        "950": { "$value": "#090D16", "$type": "color" }
+      },
+      "emerald": { "500": { "$value": "#10B981", "$type": "color" }, "bg-light": { "$value": "#ECFDF5", "$type": "color" }, "bg-dark": { "$value": "#064E3B", "$type": "color" } },
+      "amber":   { "500": { "$value": "#F59E0B", "$type": "color" }, "bg-light": { "$value": "#FFFBEB", "$type": "color" }, "bg-dark": { "$value": "#451A03", "$type": "color" } },
+      "rose":    { "500": { "$value": "#EF4444", "$type": "color" }, "bg-light": { "$value": "#FEF2F2", "$type": "color" }, "bg-dark": { "$value": "#450A0A", "$type": "color" } },
+      "purple":  { "500": { "$value": "#7C3AED", "$type": "color" }, "bg-light": { "$value": "#F5F3FF", "$type": "color" }, "bg-dark": { "$value": "#2E1065", "$type": "color" } },
+      "white":   { "$value": "#FFFFFF", "$type": "color" }
+    },
+    "fontFamily": {
+      "ui":   { "$value": "'Inter', ui-sans-serif, system-ui, sans-serif", "$type": "fontFamily", "$note": "Matches master §4.2 — same font family as operasional, not Outfit/Plus Jakarta." },
+      "data": { "$value": "'JetBrains Mono', ui-monospace, monospace", "$type": "fontFamily", "$note": "Rupiah, No. Invoice, Login ID/CID, tanggal teknis — sama seperti master §4.2." }
+    },
+    "fontSize": {
+      "xs":  { "$value": "0.75rem",  "$type": "dimension" },
+      "sm":  { "$value": "0.875rem", "$type": "dimension" },
+      "base":{ "$value": "1rem",     "$type": "dimension" },
+      "lg":  { "$value": "1.125rem", "$type": "dimension" },
+      "xl":  { "$value": "1.25rem",  "$type": "dimension" },
+      "2xl": { "$value": "1.5rem",   "$type": "dimension" },
+      "3xl": { "$value": "1.875rem", "$type": "dimension" }
+    },
+    "spacing": {
+      "1": { "$value": "0.25rem", "$type": "dimension" },
+      "2": { "$value": "0.5rem",  "$type": "dimension" },
+      "3": { "$value": "0.75rem", "$type": "dimension" },
+      "4": { "$value": "1rem",    "$type": "dimension" },
+      "5": { "$value": "1.25rem", "$type": "dimension" },
+      "6": { "$value": "1.5rem",  "$type": "dimension" },
+      "8": { "$value": "2rem",   "$type": "dimension" }
+    },
+    "radius": {
+      "sm":   { "$value": "0.625rem", "$type": "dimension", "$note": "10px — input, badge, chip" },
+      "md":   { "$value": "0.875rem", "$type": "dimension", "$note": "14px — button, list row" },
+      "lg":   { "$value": "1.125rem", "$type": "dimension", "$note": "18px — card, panel" },
+      "xl":   { "$value": "1.375rem", "$type": "dimension", "$note": "22px — sheet, modal, hero card" },
+      "full": { "$value": "9999px",   "$type": "dimension", "$note": "pill — status badge, bottom-nav item, avatar" },
+      "$note": "Deliberately larger than master's 4-12px enterprise scale — consumer apps read large radius as approachable, not sloppy, as long as it's a FIXED small set (4 steps), not arbitrary per-component (rounded-[32px])."
+    },
+    "shadow": {
+      "none": { "$value": "none", "$type": "shadow" },
+      "xs":   { "$value": "0 1px 2px rgba(15,23,42,0.04)", "$type": "shadow", "$note": "resting card — barely there" },
+      "sm":   { "$value": "0 2px 8px rgba(15,23,42,0.06)", "$type": "shadow", "$note": "raised element: dropdown, toast" },
+      "md":   { "$value": "0 8px 24px rgba(15,23,42,0.10)", "$type": "shadow", "$note": "bottom sheet, modal, floating bottom-nav ONLY" }
+    },
+    "duration": {
+      "fast":   { "$value": "120ms", "$type": "duration", "$note": "tap feedback, focus ring" },
+      "normal": { "$value": "180ms", "$type": "duration", "$note": "hover, page element transition" },
+      "slow":   { "$value": "280ms", "$type": "duration", "$note": "sheet/modal enter-exit, page transition — ONCE, not looping" }
+    }
+  },
+
+  "semantic": {
+    "color": {
+      "background":        { "$value": "{primitive.color.slate.50}",  "$dark": "{primitive.color.slate.950}", "$type": "color" },
+      "surface":           { "$value": "{primitive.color.white}",     "$dark": "{primitive.color.slate.900}", "$type": "color", "$note": "Solid card background. NOT translucent/backdrop-blur by default." },
+      "surface-muted":     { "$value": "{primitive.color.slate.100}", "$dark": "{primitive.color.slate.800}", "$type": "color" },
+      "border":            { "$value": "{primitive.color.slate.200}", "$dark": "{primitive.color.slate.700}", "$type": "color" },
+      "border-strong":     { "$value": "{primitive.color.slate.300}", "$dark": "{primitive.color.slate.600}", "$type": "color" },
+      "text-main":         { "$value": "{primitive.color.slate.900}", "$dark": "{primitive.color.slate.50}",  "$type": "color" },
+      "text-secondary":    { "$value": "{primitive.color.slate.700}", "$dark": "{primitive.color.slate.300}", "$type": "color" },
+      "text-muted":        { "$value": "{primitive.color.slate.500}", "$dark": "{primitive.color.slate.400}", "$type": "color" },
+
+      "primary":           { "$value": "{primitive.color.sky.600}", "$dark": "{primitive.color.sky.400}", "$type": "color", "$note": "SOLID only. Never bg-gradient-to-r." },
+      "primary-hover":     { "$value": "{primitive.color.sky.700}", "$dark": "{primitive.color.sky.600}", "$type": "color" },
+      "primary-soft":      { "$value": "{primitive.color.sky.50}",  "$dark": "{primitive.color.sky.900}", "$type": "color" },
+      "primary-foreground":{ "$value": "{primitive.color.white}", "$type": "color" },
+
+      "success":     { "$value": "{primitive.color.emerald.500}", "$type": "color" },
+      "success-bg":  { "$value": "{primitive.color.emerald.bg-light}", "$dark": "{primitive.color.emerald.bg-dark}", "$type": "color" },
+      "warning":     { "$value": "{primitive.color.amber.500}", "$type": "color" },
+      "warning-bg":  { "$value": "{primitive.color.amber.bg-light}", "$dark": "{primitive.color.amber.bg-dark}", "$type": "color" },
+      "error":       { "$value": "{primitive.color.rose.500}", "$type": "color" },
+      "error-bg":    { "$value": "{primitive.color.rose.bg-light}", "$dark": "{primitive.color.rose.bg-dark}", "$type": "color" },
+      "special":     { "$value": "{primitive.color.purple.500}", "$type": "color", "$note": "isolir/suspend/dibatalkan states — matches master §4.1.2" }
+    },
+    "radius": {
+      "input":  { "$value": "{primitive.radius.sm}" },
+      "button": { "$value": "{primitive.radius.md}" },
+      "card":   { "$value": "{primitive.radius.lg}" },
+      "sheet":  { "$value": "{primitive.radius.xl}" },
+      "pill":   { "$value": "{primitive.radius.full}" }
+    }
+  },
+
+  "component": {
+    "button": {
+      "primary":   { "bg": "{semantic.color.primary}", "bg-hover": "{semantic.color.primary-hover}", "text": "{semantic.color.primary-foreground}", "radius": "{semantic.radius.button}", "minHeight": "48px", "$note": "48px min height = comfortable thumb target, not 36px enterprise btn." },
+      "secondary": { "bg": "{semantic.color.surface}", "border": "{semantic.color.border}", "text": "{semantic.color.text-main}", "radius": "{semantic.radius.button}", "minHeight": "48px" },
+      "danger":    { "bg": "{semantic.color.error}", "text": "{primitive.color.white}", "radius": "{semantic.radius.button}", "minHeight": "48px" },
+      "ghost":     { "bg": "transparent", "text": "{semantic.color.primary}", "radius": "{semantic.radius.button}", "minHeight": "44px" }
+    },
+    "input": {
+      "default": { "bg": "{semantic.color.surface}", "border": "{semantic.color.border}", "radius": "{semantic.radius.input}", "minHeight": "48px", "focusRing": "0 0 0 4px rgba(2,132,199,0.15)" }
+    },
+    "card": {
+      "default": { "bg": "{semantic.color.surface}", "border": "{semantic.color.border}", "radius": "{semantic.radius.card}", "shadow": "{primitive.shadow.xs}", "padding": "{primitive.spacing.6}" },
+      "elevated": { "$note": "Reserved for bottom-sheet/modal ONLY — not list cards.", "bg": "{semantic.color.surface}", "radius": "{semantic.radius.sheet}", "shadow": "{primitive.shadow.md}" }
+    },
+    "badge": {
+      "default": { "radius": "{semantic.radius.pill}", "fontSize": "{primitive.fontSize.xs}", "fontWeight": 600, "padding": "2px 10px" },
+      "$note": "Color communicates status via text+soft-bg pair (success/warning/error/special) — never decorative. Pulsing dot allowed ONLY on the single most-urgent badge type (e.g. 'belum_dibayar'), governed by prefers-reduced-motion."
+    }
+  },
+
+  "prohibited": [
+    "bg-gradient-to-* on button/badge/logo (matches master §Universal Prohibited Patterns)",
+    "backdrop-blur / glass-card as the DEFAULT card treatment — reserve for bottom-sheet, sticky header/nav only",
+    "decorative absolute blur-circle divs inside cards",
+    "infinite-looping decorative animation (animate-float, pulse-glow) — motion must be triggered by an event (enter/exit/tap/load), not idle-looping",
+    "arbitrary one-off radius values (rounded-[32px]) — use only the 4-step radius scale above",
+    "card-in-card nesting",
+    "uppercase-tracking-wide label treatment on more than 1-2 elements per screen"
+  ]
+}

@@ -1,16 +1,6 @@
 import Link from 'next/link';
 import type { PaginatedData } from '@/lib/types/portal-api';
 
-/**
- * Satu komponen paginasi buat semua list (tagihan/pembayaran/saldo-mutasi/
- * tiket). Baca `meta` dari Laravel Resource apa adanya, JANGAN hitung ulang
- * total halaman manual.
- *
- * Halaman-halaman di app ini Server Component yang baca `?page=` dari URL
- * (bukan client state) — jadi navigasinya lewat <Link>, bukan onClick
- * callback: query berubah → Next.js re-render Server Component dengan data
- * baru, SSR tetap kepegang (gak perlu client-side fetch tambahan).
- */
 export function Pagination({
   meta,
   basePath,
@@ -36,31 +26,39 @@ export function Pagination({
   const nextDisabled = current_page >= last_page;
 
   return (
-    <nav className="flex items-center justify-between border-t border-gray-200 pt-3">
+    <nav className="flex items-center justify-between border-t border-border pt-4 mt-6">
       <Link
         href={hrefFor(current_page - 1)}
         aria-disabled={prevDisabled}
-        className={`rounded-md px-3 py-1.5 text-sm ${
+        className={`inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold border border-border transition-all ${
           prevDisabled
-            ? 'pointer-events-none text-gray-300'
-            : 'text-gray-700 hover:bg-gray-100'
+            ? 'pointer-events-none text-foreground/30 border-transparent bg-foreground/2'
+            : 'text-foreground/80 hover:bg-foreground/5 hover:text-foreground hover:scale-[1.01] active:scale-[0.99]'
         }`}
       >
-        &larr; Sebelumnya
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span>Sebelumnya</span>
       </Link>
-      <span className="text-sm text-gray-500">
-        Halaman {current_page} dari {last_page}
+      
+      <span className="text-sm font-medium text-foreground/60">
+        Halaman <span className="font-bold text-foreground">{current_page}</span> dari <span className="font-bold text-foreground">{last_page}</span>
       </span>
+      
       <Link
         href={hrefFor(current_page + 1)}
         aria-disabled={nextDisabled}
-        className={`rounded-md px-3 py-1.5 text-sm ${
+        className={`inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold border border-border transition-all ${
           nextDisabled
-            ? 'pointer-events-none text-gray-300'
-            : 'text-gray-700 hover:bg-gray-100'
+            ? 'pointer-events-none text-foreground/30 border-transparent bg-foreground/2'
+            : 'text-foreground/80 hover:bg-foreground/5 hover:text-foreground hover:scale-[1.01] active:scale-[0.99]'
         }`}
       >
-        Selanjutnya &rarr;
+        <span>Selanjutnya</span>
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
       </Link>
     </nav>
   );

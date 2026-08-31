@@ -234,6 +234,73 @@ export interface TicketListItem {
 export type TicketDetail = TicketListItem;
 
 // ---------------------------------------------------------------------------
+// Staf/Kolektor (2026-08-29) — SUBJEK BEDA dari semua di atas: staf/kolektor
+// Operasional, bukan pelanggan. Auth-nya BUKAN cookie sesi (`getSession()`)
+// — token one-shot (`staff_token`) datang lewat query string dari redirect
+// `QrScanController` (Laravel), dipegang komponen client SEKALI request,
+// TIDAK PERNAH disimpan `iron-session`. Lihat whusnet-operasional
+// docs/plan/qr-code/analisa-unifikasi-qr-staff-portal.md §2/§3.
+// ---------------------------------------------------------------------------
+
+export type StaffTicketType = 'MTN' | 'C-REQ';
+export type StaffTicketPriority = 'low' | 'Medium' | 'High' | 'Urgent';
+
+export interface StaffTicketCreateRequest {
+  type: StaffTicketType;
+  detail_keluhan: string;
+  priority: StaffTicketPriority;
+  confirmed_duplicate?: boolean;
+}
+
+export interface StaffTicketCreateResponse {
+  data: { ticket_number: string; status: string | null };
+}
+
+/** Body 409 — pelanggan masih punya tiket terbuka, belum confirmed_duplicate. */
+export interface StaffTicketDuplicateResponse {
+  message: string;
+  existing_ticket_number: string;
+}
+
+export interface StaffKolektorWorklistInvoice {
+  id: number;
+  invoice_number: string;
+  billing_period: string;
+  due_date: string;
+  remaining_amount: string; // string desimal, sama konvensi InvoiceListItem
+}
+
+export interface StaffKolektorWorklistResponse {
+  data: {
+    customer: { customer_code: string; full_name: string };
+    invoices: StaffKolektorWorklistInvoice[];
+  };
+}
+
+export type StaffKolektorPaymentMethod = 'cash' | 'transfer' | 'qris' | 'lainnya';
+
+export interface StaffKolektorPaymentRow {
+  invoice_id: number;
+  amount: number; // dikirim number di request (beda dari response — backend RupiahInput yang parse)
+  payment_method: StaffKolektorPaymentMethod;
+  collected_date: string; // "YYYY-MM-DD"
+}
+
+export interface StaffKolektorPaymentRequest {
+  idempotency_key: string;
+  rows: StaffKolektorPaymentRow[];
+}
+
+export interface StaffKolektorPaymentResponse {
+  success: boolean;
+  message: string;
+  already_processed?: boolean;
+  batch_id?: number;
+  processed?: number;
+  failures?: Array<{ invoice_id?: unknown; reason: string }>;
+}
+
+// ---------------------------------------------------------------------------
 // Error umum (bentuk body error Laravel)
 // ---------------------------------------------------------------------------
 

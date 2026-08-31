@@ -6,7 +6,7 @@ export function SkeletonRows({ count = 5 }: { count?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-14 animate-pulse rounded-md bg-gray-100" />
+        <div key={i} className="skeleton h-14" />
       ))}
     </div>
   );

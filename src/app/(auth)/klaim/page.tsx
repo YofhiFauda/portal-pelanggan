@@ -32,15 +32,12 @@ export default async function KlaimPage({
   if (result.data.account_status === 'active') {
     return (
       <>
-        <h1 className="mb-4 text-center text-base font-medium text-gray-900">Akun Sudah Aktif</h1>
-        <p className="mb-4 text-center text-sm text-gray-600">
-          Login ID <span className="font-medium text-gray-900">{result.data.login_id}</span> sudah
+        <h1 className="mb-4 text-center text-base font-semibold text-foreground">Akun Sudah Aktif</h1>
+        <p className="mb-4 text-center text-sm text-text-secondary">
+          Login ID <span className="font-semibold text-foreground">{result.data.login_id}</span> sudah
           pernah diaktivasi. Silakan masuk dengan password Anda.
         </p>
-        <Link
-          href="/login"
-          className="block w-full rounded-md bg-gray-900 px-3 py-2 text-center text-sm font-medium text-white"
-        >
+        <Link href="/login" className="btn btn-primary w-full">
           Ke Halaman Masuk
         </Link>
       </>
@@ -57,12 +54,9 @@ export default async function KlaimPage({
 function ErrorState({ message }: { message: string }) {
   return (
     <>
-      <h1 className="mb-4 text-center text-base font-medium text-gray-900">QR Tidak Valid</h1>
-      <p className="mb-4 text-center text-sm text-gray-600">{message}</p>
-      <Link
-        href="/login"
-        className="block w-full rounded-md bg-gray-900 px-3 py-2 text-center text-sm font-medium text-white"
-      >
+      <h1 className="mb-4 text-center text-base font-semibold text-foreground">QR Tidak Valid</h1>
+      <p className="mb-4 text-center text-sm text-text-secondary">{message}</p>
+      <Link href="/login" className="btn btn-primary w-full">
         Ke Halaman Masuk
       </Link>
     </>

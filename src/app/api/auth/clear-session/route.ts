@@ -15,5 +15,7 @@ import { clearSession } from '@/lib/session';
  */
 export async function GET(request: Request) {
   await clearSession();
-  return NextResponse.redirect(new URL('/login?session_expired=1', request.url));
+  const proto = request.headers.get('x-forwarded-proto') || 'http';
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || 'localhost:3000';
+  return NextResponse.redirect(new URL('/login?session_expired=1', `${proto}://${host}`));
 }

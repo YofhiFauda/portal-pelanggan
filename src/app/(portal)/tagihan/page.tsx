@@ -6,10 +6,11 @@ import { DateDisplay } from '@/components/DateDisplay';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { Pagination } from '@/components/Pagination';
+import { Receipt } from 'lucide-react';
 import type { InvoiceListItem, PaginatedData } from '@/lib/types/portal-api';
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'Semua' },
+  { value: '', label: 'Semua Status' },
   { value: 'lunas', label: 'Lunas' },
   { value: 'sebagian', label: 'Sebagian' },
   { value: 'belum_dibayar', label: 'Belum Dibayar' },
@@ -33,29 +34,36 @@ export default async function TagihanListPage({
   );
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-lg font-semibold text-gray-900">Tagihan</h1>
-
-      <form className="flex flex-wrap items-end gap-3" method="GET">
+    <div className="space-y-6 animate-fade-in-up">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <label htmlFor="status" className="mb-1 block text-xs text-gray-500">
+          <h2 className="text-2xl font-extrabold font-display text-foreground tracking-tight">Tagihan Anda</h2>
+          <p className="text-xs font-bold text-foreground/45 mt-1">Daftar semua riwayat tagihan bulanan layanan internet Anda.</p>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <form className="card rounded-lg p-5 flex flex-wrap items-end gap-4" method="GET">
+        <div className="w-full sm:w-auto min-w-[200px]">
+          <label htmlFor="status" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
             Status
           </label>
           <select
             id="status"
             name="status"
             defaultValue={params.status ?? ''}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+            className="input text-xs font-bold cursor-pointer"
           >
             {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
+              <option key={opt.value} value={opt.value} className="bg-background text-foreground">
                 {opt.label}
               </option>
             ))}
           </select>
         </div>
-        <div>
-          <label htmlFor="period" className="mb-1 block text-xs text-gray-500">
+
+        <div className="w-full sm:w-auto min-w-[200px]">
+          <label htmlFor="period" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
             Periode
           </label>
           <input
@@ -63,58 +71,56 @@ export default async function TagihanListPage({
             type="month"
             name="period"
             defaultValue={params.period ?? ''}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+            className="input text-xs font-bold cursor-pointer"
           />
         </div>
-        <button
-          type="submit"
-          className="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white"
-        >
-          Terapkan
+
+        <button type="submit" className="btn btn-primary w-full sm:w-auto">
+          Terapkan Filter
         </button>
       </form>
 
       {!result.ok ? (
         <ErrorBanner />
       ) : result.data.data.length === 0 ? (
-        <EmptyState icon="🧾" text="Belum ada tagihan." />
+        <EmptyState icon={<Receipt className="w-6 h-6 text-foreground/40" />} text="Belum ada tagihan sesuai kriteria filter." />
       ) : (
         <>
-          {/* Desktop: tabel */}
-          <div className="hidden overflow-x-auto rounded-lg border border-gray-200 md:block">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-left text-xs text-gray-500">
+          {/* Desktop view: Table */}
+          <div className="hidden overflow-hidden rounded-lg border border-border bg-surface md:block">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-surface-muted text-[11px] font-bold uppercase tracking-wider text-text-muted border-b border-border">
                 <tr>
-                  <th className="px-4 py-2">No. Tagihan</th>
-                  <th className="px-4 py-2">Periode</th>
-                  <th className="px-4 py-2">Jatuh Tempo</th>
-                  <th className="px-4 py-2">Total</th>
-                  <th className="px-4 py-2">Sisa</th>
-                  <th className="px-4 py-2">Status</th>
+                  <th className="px-6 py-3">No. Tagihan</th>
+                  <th className="px-6 py-3">Periode</th>
+                  <th className="px-6 py-3">Jatuh Tempo</th>
+                  <th className="px-6 py-3">Total Tagihan</th>
+                  <th className="px-6 py-3">Sisa Pembayaran</th>
+                  <th className="px-6 py-3">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border text-text-secondary">
                 {result.data.data.map((inv) => (
-                  <tr key={inv.invoice_number}>
-                    <td className="px-4 py-2">
+                  <tr key={inv.invoice_number} className="hover:bg-surface-muted transition-colors duration-fast">
+                    <td className="px-6 py-4 font-medium">
                       <Link
                         href={`/tagihan/${inv.invoice_number}`}
-                        className="font-medium text-gray-900 underline"
+                        className="font-bold font-mono text-brand-primary hover:underline cursor-pointer"
                       >
                         {inv.invoice_number}
                       </Link>
                     </td>
-                    <td className="px-4 py-2">{inv.billing_period}</td>
-                    <td className="px-4 py-2">
+                    <td className="px-6 py-4">{inv.billing_period}</td>
+                    <td className="px-6 py-4 text-text-muted">
                       <DateDisplay value={inv.due_date} format="short" />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-6 py-4 font-mono">
                       <MoneyDisplay value={inv.total_amount} />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-6 py-4 font-mono font-bold text-foreground">
                       <MoneyDisplay value={inv.remaining_amount} />
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-6 py-4">
                       <StatusBadge
                         value={inv.invoice_status.value}
                         label={inv.invoice_status.label}
@@ -126,24 +132,37 @@ export default async function TagihanListPage({
             </table>
           </div>
 
-          {/* Mobile: kartu bertumpuk */}
-          <div className="space-y-3 md:hidden">
+          {/* Mobile view: Stacked Cards */}
+          <div className="space-y-4 md:hidden">
             {result.data.data.map((inv) => (
               <Link
                 key={inv.invoice_number}
                 href={`/tagihan/${inv.invoice_number}`}
-                className="block rounded-lg border border-gray-200 bg-white p-3"
+                className="block card rounded-lg p-5 active:scale-[0.99] transition-transform cursor-pointer"
               >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">{inv.invoice_number}</span>
+                <div className="flex items-center justify-between mb-3.5">
+                  <span className="font-bold font-mono text-xs text-brand-primary">
+                    {inv.invoice_number}
+                  </span>
                   <StatusBadge
                     value={inv.invoice_status.value}
                     label={inv.invoice_status.label}
                   />
                 </div>
-                <div className="mt-1 flex items-center justify-between text-sm text-gray-600">
-                  <MoneyDisplay value={inv.total_amount} />
-                  <DateDisplay value={inv.due_date} format="short" />
+
+                <div className="flex justify-between items-end border-t border-border border-dashed pt-3.5">
+                  <div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted block mb-1">Total Tagihan</span>
+                    <span className="text-base font-extrabold font-mono text-foreground">
+                      <MoneyDisplay value={inv.total_amount} />
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted block mb-1">Jatuh Tempo</span>
+                    <span className="text-xs font-bold text-text-secondary">
+                      <DateDisplay value={inv.due_date} format="short" />
+                    </span>
+                  </div>
                 </div>
               </Link>
             ))}

@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/yopi/whusnet/portal-pelanggan/src/app/(auth)/layout.tsx"],"sourcesContent":["/**\r\n * Layout tanpa nav buat /login & /aktivasi — card tunggal di tengah layar.\r\n * Pelanggan belum login gak boleh liat sidebar/menu halaman berauth.\r\n */\r\nexport default function AuthLayout({ children }: { children: React.ReactNode }) {\r\n  return (\r\n    <div className=\"flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12\">\r\n      <div className=\"w-full max-w-sm\">\r\n        <div className=\"mb-6 text-center\">\r\n          <span className=\"text-lg font-semibold text-gray-900\">Whusnet</span>\r\n          <p className=\"text-sm text-gray-500\">Portal Pelanggan</p>\r\n        </div>\r\n        <div className=\"rounded-lg border border-gray-200 bg-white p-6 shadow-sm\">\r\n          {children}\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"],"names":["AuthLayout","children","className"],"mappings":"AAAA;;;CAGC;;;;;;AACc,SAASA,WAAW,EAAEC,QAAQ,EAAiC;IAC5E,qBACE,8OAAC;QAAIC,WAAU;kBACb,cAAA,8OAAC;YAAIA,WAAU;;8BACb,8OAAC;oBAAIA,WAAU;;sCACb,8OAAC;4BAAKA,WAAU;sCAAsC;;;;;;sCACtD,8OAAC;4BAAEA,WAAU;sCAAwB;;;;;;;;;;;;8BAEvC,8OAAC;oBAAIA,WAAU;8BACZD;;;;;;;;;;;;;;;;;AAKX"}}]
+}

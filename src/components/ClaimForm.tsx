@@ -1,18 +1,11 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 type ClaimErrorKind = 'generic' | 'already-claimed' | null;
 
-/**
- * Form klaim akun (login_id + PIN + password baru) — dipakai DUA halaman:
- * `/aktivasi` (login_id diketik manual, pelanggan gak lewat scan) dan
- * `/klaim` (login_id sudah di-resolve dari code QR, lihat
- * frontend-nextjs-rancangan.md § "/klaim"). Satu komponen, satu titik
- * logic submit — beda cuma cara login_id keisi.
- */
 export function ClaimForm({
   initialLoginId = '',
   lockLoginId = false,
@@ -29,9 +22,11 @@ export function ClaimForm({
   const [error, setError] = useState<string | null>(null);
   const [errorKind, setErrorKind] = useState<ClaimErrorKind>(null);
   const [fieldErrors, setFieldErrors] = useState<string[]>([]);
+  const submittingRef = useRef(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (submittingRef.current) return;
     setError(null);
     setErrorKind(null);
     setFieldErrors([]);
@@ -41,6 +36,7 @@ export function ClaimForm({
       return;
     }
 
+    submittingRef.current = true;
     setLoading(true);
     try {
       const res = await fetch('/api/auth/claim', {
@@ -59,10 +55,9 @@ export function ClaimForm({
         } else if (res.status === 423) {
           setError('PIN terkunci sementara, coba lagi nanti. Kalau berulang kali salah, hubungi admin/CS untuk reset PIN.');
         } else {
-          // 401 — login_id/PIN salah, atau belum punya token QR aktif
-          // (pesan sengaja sama persis, jangan dibedakan di sisi UI).
           setError(body.message ?? 'Terjadi kesalahan. Coba lagi.');
         }
+        submittingRef.current = false;
         setLoading(false);
         return;
       }
@@ -71,6 +66,7 @@ export function ClaimForm({
       router.refresh();
     } catch {
       setError('Tidak bisa terhubung ke server, coba lagi.');
+      submittingRef.current = false;
       setLoading(false);
     }
   }
@@ -78,16 +74,18 @@ export function ClaimForm({
   if (errorKind === 'already-claimed') {
     return (
       <>
-        <h1 className="mb-4 text-center text-base font-medium text-gray-900">
+        <h3 className="mb-4 text-center text-lg font-semibold font-display text-foreground">
           Aktivasi Akun
-        </h1>
-        <div className="mb-4 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          {error}
+        </h3>
+        <div className="mb-6 rounded-md bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
+          <div className="flex gap-2 items-center">
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
         </div>
-        <Link
-          href="/login"
-          className="block w-full rounded-md bg-gray-900 px-3 py-2 text-center text-sm font-medium text-white"
-        >
+        <Link href="/login" className="btn btn-primary w-full">
           Ke Halaman Masuk
         </Link>
       </>
@@ -96,15 +94,24 @@ export function ClaimForm({
 
   return (
     <>
-      <h1 className="mb-4 text-center text-base font-medium text-gray-900">Aktivasi Akun</h1>
+      <h3 className="mb-6 text-center text-xl font-bold font-display text-foreground tracking-tight">
+        Aktivasi Akun
+      </h3>
 
       {error && (
-        <div className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+        <div className="mb-5 rounded-md bg-red-500/10 border border-red-500/20 px-4 py-3.5 text-xs font-semibold text-red-700 dark:text-red-400 animate-fade-in-up">
+          <div className="flex gap-2.5 items-center">
+            <svg className="w-4 h-4 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
+        </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="login_id" className="mb-1 block text-sm text-gray-700">
+          <label htmlFor="login_id" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Login ID
           </label>
           <input
@@ -115,14 +122,13 @@ export function ClaimForm({
             value={loginId}
             onChange={(e) => setLoginId(e.target.value)}
             placeholder="PNG00RQ000631"
-            className={`w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none ${
-              lockLoginId ? 'bg-gray-100 text-gray-600' : ''
-            }`}
+            className={`input text-sm ${lockLoginId ? 'bg-surface-muted text-text-muted cursor-not-allowed' : ''}`}
           />
         </div>
+
         <div>
-          <label htmlFor="pin" className="mb-1 block text-sm text-gray-700">
-            PIN (6 digit, dari kartu pelanggan)
+          <label htmlFor="pin" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
+            PIN (6 Digit dari Kartu)
           </label>
           <input
             id="pin"
@@ -133,11 +139,13 @@ export function ClaimForm({
             pattern="[0-9]{6}"
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-center text-lg tracking-[0.5em] focus:border-gray-500 focus:outline-none"
+            placeholder="••••••"
+            className="input text-center text-2xl font-bold tracking-[0.5em] placeholder:tracking-normal placeholder:font-normal"
           />
         </div>
+
         <div>
-          <label htmlFor="new_password" className="mb-1 block text-sm text-gray-700">
+          <label htmlFor="new_password" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Password Baru
           </label>
           <input
@@ -148,18 +156,20 @@ export function ClaimForm({
             autoComplete="new-password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
+            placeholder="••••••••••••"
+            className="input text-sm"
           />
           {fieldErrors.length > 0 && (
-            <ul className="mt-1 list-disc pl-5 text-xs text-red-600">
+            <ul className="mt-2 list-disc pl-5 text-xs text-red-600 dark:text-red-400 space-y-0.5 animate-fade-in-up">
               {fieldErrors.map((msg) => (
                 <li key={msg}>{msg}</li>
               ))}
             </ul>
           )}
         </div>
+
         <div>
-          <label htmlFor="confirm_password" className="mb-1 block text-sm text-gray-700">
+          <label htmlFor="confirm_password" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Konfirmasi Password
           </label>
           <input
@@ -169,21 +179,29 @@ export function ClaimForm({
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none"
+            placeholder="••••••••••••"
+            className="input text-sm"
           />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {loading ? 'Memproses...' : 'Aktivasi'}
+
+        <button type="submit" disabled={loading} className="btn btn-primary w-full mt-2">
+          {loading ? (
+            <>
+              <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span>Memproses...</span>
+            </>
+          ) : (
+            <span>Aktivasi Akun</span>
+          )}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-500">
+      <p className="mt-6 text-center text-xs font-semibold text-text-muted">
         Sudah punya akun?{' '}
-        <Link href="/login" className="font-medium text-gray-900 underline">
+        <Link href="/login" className="font-bold text-brand-primary hover:underline transition-colors">
           Masuk di sini
         </Link>
       </p>

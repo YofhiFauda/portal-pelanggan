@@ -10,7 +10,18 @@ import type { AuthTokenResponse, RefreshRequest } from './types/portal-api';
 
 export type ApiResult<T> =
   | { ok: true; status: number; data: T }
-  | { ok: false; status: number; message: string; errors?: Record<string, string[]> };
+  | {
+      ok: false;
+      status: number;
+      message: string;
+      errors?: Record<string, string[]>;
+      // Body error MENTAH — kebanyakan caller cukup pakai message/errors,
+      // tapi beberapa endpoint (mis. POST /tickets 409 duplikat) balikin
+      // field tambahan (`existing_ticket_number`) yang gak generik cukup
+      // buat masuk union di atas. Caller yang butuh field spesifik itu
+      // narrow dari sini, bukan nebak lewat `as`.
+      raw?: unknown;
+    };
 
 interface CallLaravelInit extends Omit<RequestInit, 'headers'> {
   /** true kalau endpoint butuh Authorization: Bearer (semua /me/*). */
@@ -112,6 +123,7 @@ export async function callLaravel<T>(
       status: res.status,
       message: body.message ?? 'Terjadi kesalahan.',
       errors: body.errors,
+      raw: body,
     };
   }
 
