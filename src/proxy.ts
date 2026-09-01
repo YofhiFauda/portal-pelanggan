@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SESSION_COOKIE_NAME } from '@/lib/session';
+import { SESSION_COOKIE_NAME, EXP_COOKIE_NAME } from '@/lib/session';
 
 /**
  * Gerbang sebelum halaman ke-render (Next.js 16: `middleware.ts` deprecated,
@@ -7,7 +7,17 @@ import { SESSION_COOKIE_NAME } from '@/lib/session';
  * CUMA cek cookie ADA/GAK ADA (murah) — validasi "token-nya masih valid
  * beneran" tetap kerjaan laravel-client.ts pas halaman/Route Handler
  * beneran manggil Laravel. JANGAN taruh logic decode/verifikasi token di sini.
+ *
+ * PENGECUALIAN (2026-09-01): cek expiry `EXP_COOKIE_NAME` di bawah BUKAN
+ * decode/verifikasi token (cuma baca angka epoch polos, gak nyentuh blob
+ * `portal_session` yang disegel), jadi masih murah/aman dipanggil di sini.
+ * Ini proaktif refresh access_token SEBELUM expired — lewat redirect ke
+ * Route Handler (`app/api/auth/refresh`) yang LEGAL nulis cookie, beda dari
+ * refresh reaktif di tengah render Server Component yang token barunya gak
+ * pernah ke-persist (lihat docblock `EXP_COOKIE_NAME` di `lib/session.ts`).
  */
+const REFRESH_LOOKAHEAD_MS = 30_000; // refresh proaktif kalau token abis <30 detik lagi
+
 export function proxy(request: NextRequest) {
   const hasSession = request.cookies.has(SESSION_COOKIE_NAME);
   const isAuthPage = ['/login', '/aktivasi', '/klaim'].includes(request.nextUrl.pathname);
@@ -39,6 +49,31 @@ export function proxy(request: NextRequest) {
   if (hasSession && isAuthPage) {
     return NextResponse.redirect(getAbsoluteUrl('/dashboard'));
   }
+
+  // BUG (2026-09-01, ditemukan & dibenerin hari yang sama): komentar lama
+  // di sini bilang "titik ini cuma kesampaian kalau hasSession true" — itu
+  // SALAH. Dua `if` di atas cuma nutup 2 dari 4 kombinasi hasSession×
+  // isAuthPage; kombinasi (hasSession=false, isAuthPage=true) — akses
+  // `/login` polos TANPA cookie sesi sama sekali — ikut lolos ke sini juga.
+  // Tanpa guard eksplisit, request itu kebaca "cookie companion gak ada" →
+  // dianggap "butuh refresh" → nyasar redirect ke `/api/auth/refresh`
+  // padahal jelas-jelas gak ada sesi buat di-refresh (`refreshTokens()`
+  // pasti gagal) → mental lagi ke `/login?session_expired=1`. Makanya WAJIB
+  // di-guard `hasSession` eksplisit, bukan diasumsikan dari urutan `if`.
+  if (hasSession) {
+    const expRaw = request.cookies.get(EXP_COOKIE_NAME)?.value;
+    const exp = expRaw ? Number(expRaw) : NaN;
+    // Cookie companion gak ada (sesi lama dari sebelum fix ini, atau race)
+    // DIANGGAP butuh refresh juga — sekali refresh ekstra jauh lebih murah
+    // daripada biarin sesi refresh_token mati paksa gara-gara telat.
+    if (Number.isNaN(exp) || exp - Date.now() < REFRESH_LOOKAHEAD_MS) {
+      const target = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+      return NextResponse.redirect(
+        getAbsoluteUrl(`/api/auth/refresh?next=${encodeURIComponent(target)}`),
+      );
+    }
+  }
+
   return NextResponse.next();
 }
 

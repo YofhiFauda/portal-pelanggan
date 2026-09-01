@@ -1,40 +1,43 @@
-## DEV ONLY — target `builder` + `npm run dev` + bind mount source, buat
-## hot-reload lokal. JANGAN dipakai buat production/Coolify (dev server,
-## bukan hasil build, port 3001, butuh source ke-mount). Buat production
-## pakai `docker-compose.prod.yaml` (stage `runner`, standalone, port 3000)
-## atau build pack Dockerfile langsung — lihat README.md §Docker.
+## Production — beda dari `docker-compose.yaml` (dev-only: `npm run dev`,
+## bind mount source, port 3001). File ini pakai stage `runner` Dockerfile
+## (hasil `npm run build`, standalone, non-root) — cocok dipakai langsung
+## sebagai referensi kalau Coolify/orchestrator lain dikonfigurasi lewat
+## Docker Compose (bukan Dockerfile build pack polos).
+##
+## Env rahasia (LARAVEL_API_URL, PORTAL_CLIENT_SECRET, SESSION_COOKIE_SECRET)
+## SENGAJA tidak di-hardcode di sini — diambil dari environment host/platform
+## deploy saat `docker compose -f docker-compose.prod.yaml up`. Lihat
+## `.env.example` untuk daftar lengkap + penjelasan tiap variabel.
+
 services:
   web:
     build:
       context: .
-      target: builder
-    command: npm run dev -- --port 3001
-    # pada tahap production dengan berbeda server dari operasional kembalikan lagi menjadi 3000
-    # saa rubah 3001 karena bentrok dengan aplpine di Operasional
+      target: runner
+      args:
+        # ARG cuma kepakai saat BUILD image (Next.js nge-bake nilai ini ke
+        # bundle client-side) — beda dari tiga env di bawah yang dibaca
+        # RUNTIME. Kalau nilainya beda tiap environment, image harus
+        # di-build ulang, bukan cukup ganti env container.
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+    restart: unless-stopped
     ports:
-      - "3001:3001"
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+      - "3000:3000"
     environment:
-      # WATCHPACK_POLLING/CHOKIDAR_USEPOLLING SENGAJA dilepas (2026-08-31) —
-      # bind mount `.:/app` sumbernya native WSL2 ext4 (compose file ini
-      # tinggal di /home/.../portal-pelanggan, BUKAN drive Windows/NTFS),
-      # jadi inotify native udah jalan normal. Mode polling maksa Node
-      # stat-ing SELURUH project tiap file-watch tick tanpa henti selama
-      # container hidup — beban CPU/disk terus-menerus yang gak perlu di
-      # sini. Nyalakan lagi CUMA kalau project ini dipindah balik ke mount
-      # dari drive Windows (D:\ dst).
-      - NODE_ENV=development
+      NODE_ENV: production
+      LARAVEL_API_URL: ${LARAVEL_API_URL}
+      PORTAL_CLIENT_SECRET: ${PORTAL_CLIENT_SECRET}
+      SESSION_COOKIE_SECRET: ${SESSION_COOKIE_SECRET}
     networks:
       - default
       - whusnet_network
 
-# Satu network sama Laravel (whusnet-operasional) biar Next.js bisa manggil
-# Laravel lewat nama container (http://whusnet-nginx/...), bukan localhost
-# (localhost di dalam container ini nunjuk ke dirinya sendiri, BUKAN host
-# Windows atau container lain — itu sumber ECONNREFUSED kalau ke-pakai).
+# Sama seperti docker-compose.yaml (dev) — satu network Docker dengan
+# Laravel (whusnet-operasional) biar Next.js manggil Laravel lewat nama
+# container, bukan localhost. Kalau Laravel-nya di-deploy TERPISAH (host/
+# stack Coolify lain, tanpa network Docker yang sama), hapus blok
+# `whusnet_network` di sini dan di `networks.whusnet_network` bawah, lalu
+# isi `LARAVEL_API_URL` dengan domain publik/internal Coolify-nya.
 networks:
   default: {}
   whusnet_network:

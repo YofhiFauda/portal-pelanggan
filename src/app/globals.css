@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *), @media (prefers-color-scheme: dark));
+
 /*
  * Design tokens — lihat design-system/portal-pelanggan/Design.md untuk
  * rasional lengkap. Source of truth: design-system/portal-pelanggan/
@@ -60,6 +62,27 @@
     --color-error-bg: #450a0a;
     --color-special-bg: #2e1065;
   }
+}
+
+:root.dark,
+.dark {
+  --background: #090d16;
+  --foreground: #f8fafc;
+  --surface: #111827;
+  --surface-muted: #1f2937;
+  --border: #1e293b;
+  --border-strong: #334155;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --brand-primary: #38bdf8;
+  --brand-primary-hover: #0284c7;
+  --brand-primary-soft: #0c4a6e;
+
+  --color-success-bg: #064e3b;
+  --color-warning-bg: #451a03;
+  --color-error-bg: #450a0a;
+  --color-special-bg: #2e1065;
 }
 
 @theme {
@@ -165,6 +188,34 @@ body {
   outline: none;
   border-color: var(--brand-primary);
   box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
+}
+
+/* ── Browser Autofill Dark Mode & Consistency Fix ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000000s ease-in-out 0s, color 5000000s ease-in-out 0s;
+}
+
+@media (prefers-color-scheme: dark) {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: #f8fafc !important;
+    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+    caret-color: #f8fafc;
+  }
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f8fafc !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  caret-color: #f8fafc;
 }
 
 /* ── Card — SOLID by default. Reserve blur for sheet/sticky-nav only.

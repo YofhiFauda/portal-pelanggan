@@ -1,4 +1,5 @@
-import { ShieldAlert, ShieldCheck, Wifi } from 'lucide-react';
+import { ShieldAlert, ShieldCheck } from 'lucide-react';
+import { AppLogo } from '@/components/AppLogo';
 
 /**
  * Layout tanpa nav buat `/staff/*` — SUBJEK BEDA dari `(auth)`/`(portal)`:
@@ -20,10 +21,10 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
       <div className="w-full max-w-lg animate-fade-in-up">
         {/* Modern Brand Header */}
         <div className="mb-6 flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-primary-soft text-brand-primary shadow-sm mb-3">
-            <Wifi className="h-6 w-6" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-surface-muted dark:bg-slate-800/80 border border-border/80 shadow-xs p-2 mb-3">
+            <AppLogo className="h-full w-full object-contain" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-foreground">Whusnet</span>
+          <span className="text-xl font-bold tracking-tight text-brand-primary">Whusnet</span>
           <div className="mt-1.5 flex items-center gap-1.5 rounded-full bg-surface-muted border border-border/80 px-3 py-1 text-xs font-semibold text-text-secondary shadow-xs">
             <ShieldCheck className="h-3.5 w-3.5 text-brand-primary" />
             <span>Portal Operasional Staf</span>

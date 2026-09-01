@@ -201,7 +201,7 @@ export function ClaimForm({
           <div className={`relative flex items-center rounded-2xl border transition-all duration-150 ${
             lockLoginId
               ? 'bg-slate-100/80 dark:bg-slate-800/50 border-slate-200/60 dark:border-slate-700/60 opacity-90'
-              : 'bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15'
+              : 'bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] dark:focus-within:border-sky-400 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 dark:focus-within:ring-sky-400/20'
           }`}>
             <div className="pointer-events-none pl-3.5 text-slate-400 dark:text-slate-500">
               <Hash className="h-4 w-4" />
@@ -215,7 +215,7 @@ export function ClaimForm({
               value={loginId}
               onChange={(e) => setLoginId(e.target.value.toUpperCase())}
               placeholder="PNG00RQ000631"
-              className={`w-full min-h-[46px] bg-transparent pl-2.5 pr-3.5 py-2.5 text-sm font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white placeholder:text-slate-400 placeholder:font-sans placeholder:normal-case placeholder:font-normal placeholder:tracking-normal outline-none ${
+              className={`w-full min-h-[46px] bg-transparent pl-2.5 pr-3.5 py-2.5 text-sm font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-sans placeholder:normal-case placeholder:font-normal placeholder:tracking-normal outline-none dark:[color-scheme:dark] ${
                 lockLoginId ? 'cursor-not-allowed text-slate-600 dark:text-slate-400' : ''
               }`}
             />
@@ -236,7 +236,7 @@ export function ClaimForm({
             </span>
           </div>
 
-          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 transition-all duration-150">
+          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] dark:focus-within:border-sky-400 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 dark:focus-within:ring-sky-400/20 transition-all duration-150">
             <div className="pointer-events-none pl-3.5 text-slate-400 dark:text-slate-500">
               <KeyRound className="h-4 w-4" />
             </div>
@@ -250,7 +250,7 @@ export function ClaimForm({
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="000000"
-              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-3.5 py-2.5 font-mono text-center text-lg font-bold tracking-[0.35em] text-slate-900 dark:text-white placeholder:text-slate-300 placeholder:font-mono placeholder:tracking-[0.35em] outline-none"
+              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-3.5 py-2.5 font-mono text-center text-lg font-bold tracking-[0.35em] text-slate-900 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-600 placeholder:font-mono placeholder:tracking-[0.35em] outline-none dark:[color-scheme:dark]"
             />
           </div>
         </div>
@@ -274,7 +274,7 @@ export function ClaimForm({
             </span>
           </div>
 
-          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 transition-all duration-150">
+          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] dark:focus-within:border-sky-400 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 dark:focus-within:ring-sky-400/20 transition-all duration-150">
             <div className="pointer-events-none pl-3.5 text-slate-400 dark:text-slate-500">
               <Lock className="h-4 w-4" />
             </div>
@@ -287,14 +287,14 @@ export function ClaimForm({
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Minimal 10 karakter"
-              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none dark:[color-scheme:dark]"
             />
             <button
               type="button"
               onClick={() => setShowNewPassword((v) => !v)}
               tabIndex={-1}
               aria-label={showNewPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-              className="absolute right-2.5 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              className="absolute right-2.5 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
               {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -341,7 +341,7 @@ export function ClaimForm({
           <div className={`relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border transition-all duration-150 ${
             isMismatch
               ? 'border-amber-500/60 ring-2 ring-amber-500/20'
-              : 'border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15'
+              : 'border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] dark:focus-within:border-sky-400 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 dark:focus-within:ring-sky-400/20'
           }`}>
             <div className="pointer-events-none pl-3.5 text-slate-400 dark:text-slate-500">
               <Lock className="h-4 w-4" />
@@ -354,14 +354,14 @@ export function ClaimForm({
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Ketik ulang password baru"
-              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none dark:[color-scheme:dark]"
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword((v) => !v)}
               tabIndex={-1}
               aria-label={showConfirmPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-              className="absolute right-2.5 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              className="absolute right-2.5 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -372,7 +372,7 @@ export function ClaimForm({
         <button
           type="submit"
           disabled={loading || !loginId || pin.length !== 6 || newPassword.length < 10 || newPassword !== confirmPassword}
-          className="w-full min-h-[48px] mt-2 rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full min-h-[48px] mt-2 rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] dark:bg-sky-600 dark:hover:bg-sky-500 active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] dark:shadow-[0_4px_14px_rgba(2,132,199,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? (
             <div className="flex items-center justify-center gap-2">
@@ -398,7 +398,7 @@ export function ClaimForm({
       {/* Already registered link */}
       <p className="mt-5 text-center text-xs text-slate-500 dark:text-slate-400">
         Sudah memiliki password?{' '}
-        <Link href="/login" className="font-bold text-[#0084d1] hover:text-[#0074b7] hover:underline transition-colors">
+        <Link href="/login" className="font-bold text-[#0084d1] dark:text-sky-400 hover:text-[#0074b7] dark:hover:text-sky-300 hover:underline transition-colors">
           Masuk di sini
         </Link>
       </p>

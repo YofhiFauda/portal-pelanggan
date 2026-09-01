@@ -1,0 +1,42 @@
+## DEV ONLY — target `builder` + `npm run dev` + bind mount source, buat
+## hot-reload lokal. JANGAN dipakai buat production/Coolify (dev server,
+## bukan hasil build, port 3001, butuh source ke-mount). Buat production
+## pakai `docker-compose.prod.yaml` (stage `runner`, standalone, port 3000)
+## atau build pack Dockerfile langsung — lihat README.md §Docker.
+services:
+  web:
+    build:
+      context: .
+      target: builder
+    command: npm run dev -- --port 3001
+    # pada tahap production dengan berbeda server dari operasional kembalikan lagi menjadi 3000
+    # saa rubah 3001 karena bentrok dengan aplpine di Operasional
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      # WATCHPACK_POLLING/CHOKIDAR_USEPOLLING SENGAJA dilepas (2026-08-31) —
+      # bind mount `.:/app` sumbernya native WSL2 ext4 (compose file ini
+      # tinggal di /home/.../portal-pelanggan, BUKAN drive Windows/NTFS),
+      # jadi inotify native udah jalan normal. Mode polling maksa Node
+      # stat-ing SELURUH project tiap file-watch tick tanpa henti selama
+      # container hidup — beban CPU/disk terus-menerus yang gak perlu di
+      # sini. Nyalakan lagi CUMA kalau project ini dipindah balik ke mount
+      # dari drive Windows (D:\ dst).
+      - NODE_ENV=development
+    networks:
+      - default
+      - whusnet_network
+
+# Satu network sama Laravel (whusnet-operasional) biar Next.js bisa manggil
+# Laravel lewat nama container (http://whusnet-nginx/...), bukan localhost
+# (localhost di dalam container ini nunjuk ke dirinya sendiri, BUKAN host
+# Windows atau container lain — itu sumber ECONNREFUSED kalau ke-pakai).
+networks:
+  default: {}
+  whusnet_network:
+    external: true
+    name: whusnet-operasional_app_network

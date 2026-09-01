@@ -9,11 +9,14 @@ import { Pagination } from '@/components/Pagination';
 import { Receipt } from 'lucide-react';
 import type { InvoiceListItem, PaginatedData } from '@/lib/types/portal-api';
 
+// `lunas` SENGAJA gak jadi opsi filter di sini — tagihan yang sudah lunas
+// sudah lengkap direpresentasikan di halaman /pembayaran (riwayat
+// pembayarannya), jadi list tagihan ini cuma buat yang masih perlu
+// ditindaklanjuti. Lihat juga `exclude_status=lunas` di bawah.
 const STATUS_OPTIONS = [
   { value: '', label: 'Semua Status' },
-  { value: 'lunas', label: 'Lunas' },
-  { value: 'sebagian', label: 'Sebagian' },
   { value: 'belum_dibayar', label: 'Belum Dibayar' },
+  { value: 'sebagian', label: 'Sebagian' },
   { value: 'batal', label: 'Batal' },
 ];
 
@@ -24,7 +27,15 @@ export default async function TagihanListPage({
 }) {
   const params = await searchParams;
   const query = new URLSearchParams();
-  if (params.status) query.set('status', params.status);
+  if (params.status) {
+    query.set('status', params.status);
+  } else {
+    // "Semua Status" di sini artinya "semua KECUALI lunas" — bukan filter
+    // dropdown-nya (sudah gak ada opsi Lunas), tapi bawaan endpoint biar
+    // pagination-nya tetap benar (filter di server, bukan di-slice di sini
+    // sesudah data datang).
+    query.set('exclude_status', 'lunas');
+  }
   if (params.period) query.set('period', params.period);
   if (params.page) query.set('page', params.page);
 

@@ -480,11 +480,17 @@ Component (bukan lewat Route Handler sendiri, kecuali disebut lain).
   ringkasan).
 
 ### `/tagihan` (list) — `(portal)/tagihan/page.tsx`
-- **Sumber data**: `GET /me/invoices?status=&period=&page=` — filter dibaca
-  dari `searchParams`, diteruskan sebagai query string apa adanya.
+- **Sumber data**: `GET /me/invoices?status=&period=&page=` (atau
+  `exclude_status=lunas` kalau `status` kosong — lihat poin berikut).
+- **Tagihan `lunas` SENGAJA gak pernah muncul di list ini** (2026-09-01) —
+  udah lengkap direpresentasikan di `/pembayaran`. Dropdown status cuma 4
+  opsi ("Semua Status" + `belum_dibayar`/`sebagian`/`batal`, tanpa
+  "Lunas"), dan pas `status` kosong ("Semua Status" dipilih) query yang
+  dikirim ke Laravel pakai `exclude_status=lunas` (bukan filter di-slice di
+  Next.js sesudah data datang — biar `meta` paginasi tetap benar).
 - **Filter**: `<form method="GET">` native (bukan client-side state) —
-  submit filter = navigasi ulang halaman dengan query baru. Dropdown status
-  (5 opsi termasuk "Semua"), `<input type="month">` untuk periode.
+  submit filter = navigasi ulang halaman dengan query baru. `<input
+  type="month">` untuk periode.
 - **Tampilan**: tabel di desktop (`md:` ke atas), kartu bertumpuk di mobile
   — kolom identik: No. Tagihan, Periode, Jatuh Tempo, Total, Sisa, Status.
 - **State**: `EmptyState` (ikon `Receipt`) kalau kosong, `ErrorBanner` kalau

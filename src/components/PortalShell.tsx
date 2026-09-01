@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { AppLogo } from './AppLogo';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Beranda', iconType: 'home' },
@@ -110,17 +111,16 @@ export function PortalShell({
       <aside className="hidden w-64 shrink-0 border-r border-border bg-surface md:flex md:flex-col p-6">
         {/* Branding header */}
         <div className="flex items-center gap-3 px-2 py-4 mb-6">
-          <div className="flex items-center justify-center w-10 h-10 rounded-md bg-brand-primary text-white">
-            <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.929 19.071a9.967 9.967 0 010-14.142m14.142 14.142a9.967 9.967 0 000-14.142M7.757 16.243a5.978 5.978 0 010-8.486m8.486 8.486a5.978 5.978 0 000-8.486M10.586 13.414a1.993 1.993 0 010-2.828m2.828 2.828a1.993 1.993 0 000-2.828" />
-            </svg>
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-surface-muted dark:bg-slate-800/80 border border-border/80 shadow-xs p-1.5 shrink-0">
+            <AppLogo className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold font-display leading-none text-foreground tracking-tight">Whusnet</h1>
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span className="text-[9px] font-bold text-text-muted tracking-widest uppercase">Portal Aktif</span>
-            </div>
+            <h1 className="text-xl font-extrabold font-display leading-none text-brand-primary tracking-tight">
+              Whusnet
+            </h1>
+            <p className="text-xs font-medium text-text-secondary mt-1 tracking-wide">
+              Portal Pelanggan
+            </p>
           </div>
         </div>
 
@@ -180,12 +180,10 @@ export function PortalShell({
         {/* Top Navbar */}
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-surface/90 backdrop-blur-md px-4 sm:px-6 py-3.5 sm:py-4">
           <div className="flex items-center gap-2.5 md:hidden">
-            <div className="flex items-center justify-center w-9 h-9 rounded-md bg-brand-primary text-white">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.929 19.071a9.967 9.967 0 010-14.142m14.142 14.142a9.967 9.967 0 000-14.142M7.757 16.243a5.978 5.978 0 010-8.486m8.486 8.486a5.978 5.978 0 000-8.486M10.586 13.414a1.993 1.993 0 010-2.828m2.828 2.828a1.993 1.993 0 000-2.828" />
-              </svg>
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-surface-muted dark:bg-slate-800/80 border border-border/80 shadow-xs p-1.5 shrink-0">
+              <AppLogo className="w-full h-full object-contain" />
             </div>
-            <span className="text-lg font-extrabold font-display tracking-tight text-foreground">Whusnet</span>
+            <span className="text-lg font-extrabold font-display tracking-tight text-brand-primary">Whusnet</span>
           </div>
 
           <span className="hidden text-sm text-text-secondary md:inline font-medium">

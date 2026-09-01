@@ -62,7 +62,7 @@ export default async function KlaimPage({
         <div className="mt-6">
           <Link
             href="/login"
-            className="w-full min-h-[48px] rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full min-h-[48px] rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] dark:bg-sky-600 dark:hover:bg-sky-500 active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] dark:shadow-[0_4px_14px_rgba(2,132,199,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Ke Halaman Masuk</span>
             <ArrowRight className="h-4 w-4" />
@@ -95,14 +95,14 @@ function ErrorState({ title, message }: { title: string; message: string }) {
       <div className="mt-6 flex flex-col gap-3">
         <Link
           href="/login"
-          className="w-full min-h-[48px] rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full min-h-[48px] rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] dark:bg-sky-600 dark:hover:bg-sky-500 active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] dark:shadow-[0_4px_14px_rgba(2,132,199,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>Masuk Secara Manual</span>
           <ArrowRight className="h-4 w-4" />
         </Link>
         <Link
           href="/aktivasi"
-          className="text-xs font-bold text-[#0084d1] hover:text-[#0074b7] hover:underline transition-colors"
+          className="text-xs font-bold text-[#0084d1] dark:text-sky-400 hover:text-[#0074b7] dark:hover:text-sky-300 hover:underline transition-colors"
         >
           Aktivasi Manual dengan Login ID & PIN
         </Link>

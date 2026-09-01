@@ -7,12 +7,10 @@ import {
   AlertCircle,
   AlertTriangle,
   ArrowRight,
-  CreditCard,
   Eye,
   EyeOff,
   Hash,
   Lock,
-  Sparkles,
 } from 'lucide-react';
 
 export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean }) {
@@ -107,7 +105,7 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
             </span>
           </div>
 
-          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 transition-all duration-150">
+          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] dark:focus-within:border-sky-400 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 dark:focus-within:ring-sky-400/20 transition-all duration-150">
             <div className="pointer-events-none pl-3.5 text-slate-400 dark:text-slate-500">
               <Hash className="h-4 w-4" />
             </div>
@@ -119,7 +117,7 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
               value={loginId}
               onChange={(e) => setLoginId(e.target.value.toUpperCase())}
               placeholder="PNG00RQ000631"
-              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-3.5 py-2.5 text-sm font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white placeholder:text-slate-400 placeholder:font-sans placeholder:normal-case placeholder:font-normal placeholder:tracking-normal outline-none"
+              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-3.5 py-2.5 text-sm font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-sans placeholder:normal-case placeholder:font-normal placeholder:tracking-normal outline-none dark:[color-scheme:dark]"
             />
           </div>
         </div>
@@ -133,17 +131,9 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
             >
               PASSWORD
             </label>
-            <a
-              href="https://wa.me/6281234567890?text=Halo%20Admin%20Whusnet,%20saya%20lupa%20password%20akun%20portal%20pelanggan"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] font-semibold text-[#0084d1] hover:underline transition-colors"
-            >
-              Lupa Password?
-            </a>
           </div>
 
-          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 transition-all duration-150">
+          <div className="relative flex items-center rounded-2xl bg-[#edf3fa] dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/70 focus-within:border-[#0084d1] dark:focus-within:border-sky-400 focus-within:bg-white dark:focus-within:bg-slate-800 focus-within:ring-4 focus-within:ring-[#0084d1]/15 dark:focus-within:ring-sky-400/20 transition-all duration-150">
             <div className="pointer-events-none pl-3.5 text-slate-400 dark:text-slate-500">
               <Lock className="h-4 w-4" />
             </div>
@@ -155,14 +145,14 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Masukkan password Anda"
-              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+              className="w-full min-h-[46px] bg-transparent pl-2.5 pr-10 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none dark:[color-scheme:dark]"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
               tabIndex={-1}
               aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-              className="absolute right-2.5 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              className="absolute right-2.5 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -173,7 +163,7 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
         <button
           type="submit"
           disabled={loading || !loginId || !password}
-          className="w-full min-h-[48px] mt-2 rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full min-h-[48px] mt-2 rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] dark:bg-sky-600 dark:hover:bg-sky-500 active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] dark:shadow-[0_4px_14px_rgba(2,132,199,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? (
             <div className="flex items-center justify-center gap-2">
@@ -198,7 +188,10 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
 
       <p className="mt-5 text-center text-xs text-slate-500 dark:text-slate-400">
         Belum memiliki Akun?{' '}
-        <Link href="/aktivasi" className="font-bold text-[#0084d1] hover:text-[#0074b7] hover:underline transition-colors">
+        <Link
+          href="/aktivasi"
+          className="font-bold text-[#0084d1] dark:text-sky-400 hover:text-[#0074b7] dark:hover:text-sky-300 hover:underline transition-colors"
+        >
           Aktivasi Sekarang
         </Link>
       </p>

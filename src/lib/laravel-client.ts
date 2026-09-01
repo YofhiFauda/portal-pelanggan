@@ -43,10 +43,19 @@ function getClientSecret(): string {
 
 /**
  * Panggil POST /auth/refresh langsung (bukan lewat callLaravel, biar gak
- * rekursif ke refresh-on-401-nya sendiri). Dipakai INTERNAL doang — gak
- * pernah diekspos jadi Route Handler publik.
+ * rekursif ke refresh-on-401-nya sendiri).
+ *
+ * DIEKSPOR (2026-09-01) — dulu murni internal, dipanggil `callLaravel()`
+ * pas kena 401 di tengah render. Sekarang JUGA dipanggil
+ * `app/api/auth/refresh/route.ts` (Route Handler, dipicu proaktif oleh
+ * `proxy.ts` sebelum access_token expired). Beda krusial: dipanggil dari
+ * Route Handler, `setTokens()` di dalam sini BENERAN ke-persist ke cookie
+ * (bukan cuma dipakai in-memory sekali terus ditelan gagal nulis kayak
+ * kalau dipanggil dari render Server Component) — itulah yang benerin
+ * bug refresh_token rotasi mati sendiri, lihat docblock `EXP_COOKIE_NAME`
+ * di `session.ts`.
  */
-async function tryRefresh(): Promise<{ accessToken: string } | null> {
+export async function refreshTokens(): Promise<{ accessToken: string } | null> {
   const session = await getSession();
   if (!session.refreshToken) return null;
 
@@ -104,8 +113,17 @@ export async function callLaravel<T>(
 
   // Refresh-on-401: CUMA dicoba kalau request ini pakai auth (kalau gagalnya
   // gara-gara memang belum ada sesi, sudah return duluan di atas).
+  //
+  // Sejak `proxy.ts` proaktif refresh SEBELUM access_token expired (lihat
+  // app/api/auth/refresh/route.ts), jalur ini seharusnya JARANG kepakai —
+  // cuma jaring pengaman kalau ada race kecil (token expired persis di
+  // antara cek proxy dan fetch ini). Kalau ini dipanggil dari render
+  // Server Component, token baru hasil refresh TETAP CUMA in-memory buat
+  // request ini (gagal nulis cookie, ditelan diam-diam di `setTokens()`)
+  // — itu sudah benar diantisipasi karena harusnya jarang/gak pernah
+  // sampai sini lagi di request berikutnya.
   if (res.status === 401 && auth) {
-    const refreshed = await tryRefresh();
+    const refreshed = await refreshTokens();
     if (refreshed) {
       headers.set('Authorization', `Bearer ${refreshed.accessToken}`);
       res = await fetch(`${getLaravelBaseUrl()}${path}`, { ...restInit, headers });
@@ -164,7 +182,7 @@ export async function callLaravelBinary(path: string, init: CallLaravelInit = {}
   let res = await fetch(`${getLaravelBaseUrl()}${path}`, { ...restInit, headers });
 
   if (res.status === 401 && auth) {
-    const refreshed = await tryRefresh();
+    const refreshed = await refreshTokens();
     if (refreshed) {
       headers.set('Authorization', `Bearer ${refreshed.accessToken}`);
       res = await fetch(`${getLaravelBaseUrl()}${path}`, { ...restInit, headers });

@@ -15,6 +15,26 @@ export interface PortalSessionData {
 
 const SESSION_COOKIE_NAME = 'portal_session';
 
+/**
+ * Cookie pendamping — CUMA nyimpen `expiresAt` (angka epoch ms) polos,
+ * TIDAK disegel iron-session. Dibaca `proxy.ts` (Edge middleware) buat
+ * refresh access_token PROAKTIF sebelum expired, tanpa perlu unseal blob
+ * `portal_session` di Edge runtime. httpOnly tetap (gak perlu dibaca JS
+ * browser), tapi isinya bukan rahasia (cuma timestamp), jadi aman polos.
+ *
+ * Kenapa ini perlu (2026-09-01): sebelumnya refresh access_token cuma
+ * ke-trigger REAKTIF di tengah render Server Component (`callLaravel`
+ * refresh-on-401) — tempat itu TIDAK BOLEH nulis cookie (batasan Next.js),
+ * jadi token baru hasil refresh gak pernah ke-persist. Karena
+ * `refresh_token` di Laravel ROTASI SEKALI PAKAI, request berikutnya pasti
+ * pakai refresh_token lama yang udah mati → dianggap dicuri → sesi
+ * ke-invalidate PAKSA, tepat satu request setelah access_token pertama
+ * kali expired (bukan "tahan lebih lama pakai token lama" seperti asumsi
+ * komentar lama di bawah). Lihat `proxy.ts` dan
+ * `app/api/auth/refresh/route.ts`.
+ */
+const EXP_COOKIE_NAME = 'portal_session_exp';
+
 function getSessionSecret(): string {
   const secret = process.env.SESSION_COOKIE_SECRET;
   if (!secret || secret.length < 32) {
@@ -65,11 +85,15 @@ export async function getActiveTokens(): Promise<
  * sendiri — konsekuensinya, refresh-on-401 yang ke-trigger di tengah render
  * itu GAK BOLEH nulis cookie, atau Next.js lempar error dan halaman crash.
  *
- * Redirect balik ke /login (proxy.ts + `getSession` cookie check) tetap
- * jalan normal karena itu baca doang. Yang ditolerir cuma GAGAL nulis token
- * baru pas refresh di tengah render — token lama di cookie browser tetap
- * apa adanya sampai ada request lewat Route Handler beneran (login lagi,
- * logout, ganti password, dst) yang legal buat nulis ulang.
+ * KOREKSI (2026-09-01) — komentar lama di sini bilang "token lama tetap
+ * dipakai sampai ada request Route Handler yang legal nulis ulang", SALAH:
+ * `refresh_token` di Laravel rotasi SEKALI PAKAI, jadi gagal nulis di sini
+ * bukan "bertahan pakai token lama", tapi "sesi mati paksa di request
+ * berikutnya" (refresh_token yang gak ke-update itu udah dianggap dicuri).
+ * Fix sebenarnya: `proxy.ts` refresh PROAKTIF lewat
+ * `app/api/auth/refresh/route.ts` (Route Handler, legal nulis cookie)
+ * SEBELUM access_token expired — lihat docblock `EXP_COOKIE_NAME` di atas.
+ * Jalur reaktif di sini cuma jaring pengaman buat race langka yang tersisa.
  */
 function isCookieWriteRestrictedError(err: unknown): boolean {
   return (
@@ -90,6 +114,17 @@ export async function setTokens(tokens: {
   session.expiresAt = Date.now() + tokens.expiresInSeconds * 1000;
   try {
     await session.save();
+    // Nempel session.save() sukses — kalau itu gagal (dipanggil dari
+    // render Server Component), companion ini juga sengaja ikut gak
+    // ditulis, biar gak nunjuk expiry token yang gak sinkron sama cookie
+    // sesi yang beneran aktif di browser.
+    const cookieStore = await cookies();
+    cookieStore.set(EXP_COOKIE_NAME, String(session.expiresAt), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
   } catch (err) {
     if (!isCookieWriteRestrictedError(err)) throw err;
   }
@@ -100,9 +135,11 @@ export async function clearSession(): Promise<void> {
   const session = await getSession();
   try {
     session.destroy();
+    const cookieStore = await cookies();
+    cookieStore.delete(EXP_COOKIE_NAME);
   } catch (err) {
     if (!isCookieWriteRestrictedError(err)) throw err;
   }
 }
 
-export { SESSION_COOKIE_NAME };
+export { SESSION_COOKIE_NAME, EXP_COOKIE_NAME };

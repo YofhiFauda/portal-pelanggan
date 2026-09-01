@@ -1,15 +1,53 @@
-node_modules
-.next
-.next-dev
+# Version Control
 .git
 .gitignore
-.env
-.env.*
-.env.local
-*.md
-docs
-.agents
+.gitattributes
+
+# Dependencies & Package Managers
+node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js & Build Artifacts
+.next
+.next*
+out
+build
+dist
+*.tsbuildinfo
+.eslintcache
+
+# Environment Variables & Secrets
+.env
+.env.*
+.env.local
+*.pem
+*.key
+
+# Docker Configs
+Dockerfile*
+docker-compose*.yaml
+docker-compose*.yml
+.dockerignore
+
+# Docs, Design System & Markdown
+*.md
+docs
+design-system
+New Laravel + Nextjs (SSR) Starter kit.png
+
+# IDE & AI Assistant Tools
+.vscode
+.idea
+.agents
+.claude
+.gemini
+
+# OS Specific Files
 .DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
