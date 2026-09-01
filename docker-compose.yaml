@@ -1,3 +1,8 @@
+## DEV ONLY — target `builder` + `npm run dev` + bind mount source, buat
+## hot-reload lokal. JANGAN dipakai buat production/Coolify (dev server,
+## bukan hasil build, port 3001, butuh source ke-mount). Buat production
+## pakai `docker-compose.prod.yaml` (stage `runner`, standalone, port 3000)
+## atau build pack Dockerfile langsung — lihat README.md §Docker.
 services:
   web:
     build:

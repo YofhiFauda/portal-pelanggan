@@ -71,17 +71,20 @@ Buka [http://localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
-Buat `.env.local` (tidak ikut commit) dengan:
+Salin [`.env.example`](./.env.example) ke `.env.local` (dev) dan isi:
 
 ```env
 LARAVEL_API_URL=http://localhost:8000/api/customer-portal
 PORTAL_CLIENT_SECRET=<sama dengan PORTAL_CLIENT_SECRET di Laravel>
 SESSION_COOKIE_SECRET=<untuk sign/encode cookie sesi, generate sendiri, ≥32 karakter>
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Ketiganya **hanya** dibaca dari Route Handler/Server Component (server-side)
-— jangan pernah diprefix `NEXT_PUBLIC_`, dan jangan pernah difetch langsung
-dari Client Component.
+`LARAVEL_API_URL`, `PORTAL_CLIENT_SECRET`, `SESSION_COOKIE_SECRET` **hanya**
+dibaca dari Route Handler/Server Component (server-side) — jangan pernah
+diprefix `NEXT_PUBLIC_`, dan jangan pernah difetch langsung dari Client
+Component. `NEXT_PUBLIC_APP_URL` sebaliknya memang untuk browser (dipakai
+`next.config.ts` dan di-bake ke bundle saat build) — bukan rahasia.
 
 ## Struktur Folder
 
@@ -122,15 +125,56 @@ Ringkas — daftar lengkap ada di §9 `docs/DOKUMENTASI-PROJEK.md`:
 
 ## Docker
 
-`Dockerfile` (multi-stage: deps → builder → runner, output `standalone`)
-dan `docker-compose.yaml` ada di root repo. Container ini diharapkan jalan
-di **network Docker yang sama** dengan `whusnet-operasional` (lihat komentar
-`networks.whusnet_network` di `docker-compose.yaml`) — Next.js memanggil
-Laravel lewat nama container, bukan `localhost`.
+`Dockerfile` multi-stage: `deps` → `builder` (`npm run build`, output
+`standalone`) → `runner` (image final, non-root user `nextjs`, `EXPOSE
+3000`, `HEALTHCHECK` ke `GET /api/health`).
+
+Dua file compose — **jangan tertukar**:
+
+| File | Stage | Port | Kegunaan |
+|---|---|---|---|
+| `docker-compose.yaml` | `builder` + `npm run dev` | 3001 | **Dev lokal saja** — bind mount source, hot-reload |
+| `docker-compose.prod.yaml` | `runner` | 3000 | **Production** — image hasil build, env dari variabel host |
 
 ```bash
+# Dev
 docker compose up
+
+# Production (env LARAVEL_API_URL dkk harus sudah di-export/ada di .env)
+docker compose -f docker-compose.prod.yaml up -d --build
 ```
+
+Container ini diharapkan jalan di **network Docker yang sama** dengan
+`whusnet-operasional` (lihat komentar `networks.whusnet_network` di kedua
+file compose) — Next.js memanggil Laravel lewat nama container, bukan
+`localhost`. Kalau Laravel di-deploy terpisah (host/stack lain, tanpa
+network Docker yang sama), hapus blok `whusnet_network` dan isi
+`LARAVEL_API_URL` dengan domain yang bisa dijangkau dari luar.
+
+### Deploy ke Coolify
+
+Pilih build pack **Dockerfile** (bukan Docker Compose) — `docker-compose.yaml`
+di repo ini dev-only, `docker-compose.prod.yaml` disediakan sebagai
+referensi/dokumentasi kalau perlu compose asli, bukan wajib dipakai
+Coolify.
+
+1. Set **Build Argument**: `NEXT_PUBLIC_APP_URL` — nilainya di-bake ke
+   bundle saat build, jadi harus domain publik final aplikasi ini
+   (`https://portal.whusnet.id` misalnya), bukan `localhost`.
+2. Set **environment variable runtime**: `LARAVEL_API_URL`,
+   `PORTAL_CLIENT_SECRET`, `SESSION_COOKIE_SECRET` (lihat
+   [`.env.example`](./.env.example)).
+3. Port yang di-expose Coolify: **3000** (sesuai `Dockerfile`, bukan 3001
+   dari compose dev).
+4. Health check path: `/api/health` (dipakai juga oleh `HEALTHCHECK` di
+   `Dockerfile`).
+5. Update `PORTAL_ALLOWED_ORIGIN` di sisi Laravel ke domain publik yang
+   Coolify kasih ke aplikasi ini.
+6. Pastikan `LARAVEL_API_URL` bisa dijangkau dari container ini — kalau
+   Laravel juga di Coolify di host yang sama, sambungkan ke network Docker
+   yang sama (mis. lewat "Additional networks" di pengaturan resource
+   Coolify) atau pakai domain internal Coolify-nya; kalau tidak, pakai
+   domain publik Laravel.
 
 ## Dokumentasi Lengkap
 

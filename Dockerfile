@@ -48,4 +48,11 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+# Dipakai Coolify/orchestrator lain buat cek proses hidup — lihat
+# src/app/api/health/route.ts (sengaja tidak memanggil Laravel, cuma
+# membuktikan proses Next.js ini sendiri melayani request). `wget` sudah
+# ada bawaan BusyBox di base image Alpine, tidak perlu instal apa-apa.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
+
 CMD ["node", "server.js"]
