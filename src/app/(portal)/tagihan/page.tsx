@@ -43,41 +43,55 @@ export default async function TagihanListPage({
       </div>
 
       {/* Filter Bar */}
-      <form className="card rounded-lg p-5 flex flex-wrap items-end gap-4" method="GET">
-        <div className="w-full sm:w-auto min-w-[200px]">
-          <label htmlFor="status" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
-            Status
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={params.status ?? ''}
-            className="input text-xs font-bold cursor-pointer"
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-background text-foreground">
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <form className="card rounded-lg p-3.5 sm:p-5" method="GET">
+        <div className="grid grid-cols-2 sm:flex sm:items-end gap-2.5 sm:gap-4">
+          <div className="min-w-0 sm:min-w-[180px]">
+            <label htmlFor="status" className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              Status
+            </label>
+            <select
+              id="status"
+              name="status"
+              defaultValue={params.status ?? ''}
+              className="input text-xs font-bold cursor-pointer w-full"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value} className="bg-background text-foreground">
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="w-full sm:w-auto min-w-[200px]">
-          <label htmlFor="period" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
-            Periode
-          </label>
-          <input
-            id="period"
-            type="month"
-            name="period"
-            defaultValue={params.period ?? ''}
-            className="input text-xs font-bold cursor-pointer"
-          />
-        </div>
+          <div className="min-w-0 sm:min-w-[180px]">
+            <label htmlFor="period" className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              Periode
+            </label>
+            <input
+              id="period"
+              type="month"
+              name="period"
+              placeholder="Pilih Periode"
+              defaultValue={params.period ?? ''}
+              className="input text-xs font-bold cursor-pointer w-full"
+            />
+          </div>
 
-        <button type="submit" className="btn btn-primary w-full sm:w-auto">
-          Terapkan Filter
-        </button>
+          <div className="col-span-2 sm:col-span-1 flex items-center gap-1.5 sm:gap-2">
+            <button type="submit" className="btn btn-primary text-xs sm:text-sm px-4 sm:px-5 w-full sm:w-auto whitespace-nowrap">
+              Terapkan
+            </button>
+            {(params.status || params.period) && (
+              <Link
+                href="/tagihan"
+                className="btn btn-secondary text-xs px-3 sm:px-4 shrink-0"
+                title="Reset Filter"
+              >
+                Reset
+              </Link>
+            )}
+          </div>
+        </div>
       </form>
 
       {!result.ok ? (

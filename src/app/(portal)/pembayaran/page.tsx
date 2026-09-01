@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { callLaravel } from '@/lib/laravel-client';
 import { StatusBadge } from '@/components/StatusBadge';
 import { MoneyDisplay } from '@/components/MoneyDisplay';
@@ -9,12 +10,6 @@ import { ReceiptActions } from '@/components/ReceiptActions';
 import { CreditCard } from 'lucide-react';
 import type { PaginatedData, PaymentListItem } from '@/lib/types/portal-api';
 
-const STATUS_OPTIONS = [
-  { value: '', label: 'Semua Status' },
-  { value: 'valid', label: 'Valid' },
-  { value: 'ditolak', label: 'Belum Terverifikasi' },
-];
-
 function hasOverpay(p: PaymentListItem): boolean {
   return Number.parseFloat(p.overpay_amount) > 0;
 }
@@ -22,11 +17,10 @@ function hasOverpay(p: PaymentListItem): boolean {
 export default async function PembayaranListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; period?: string; page?: string }>;
+  searchParams: Promise<{ period?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const query = new URLSearchParams();
-  if (params.status) query.set('status', params.status);
   if (params.period) query.set('period', params.period);
   if (params.page) query.set('page', params.page);
 
@@ -45,41 +39,37 @@ export default async function PembayaranListPage({
       </div>
 
       {/* Filter Bar */}
-      <form className="card rounded-lg p-5 flex flex-wrap items-end gap-4" method="GET">
-        <div className="w-full sm:w-auto min-w-[200px]">
-          <label htmlFor="status" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
-            Status
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={params.status ?? ''}
-            className="input text-xs font-bold cursor-pointer"
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-background text-foreground">
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <form className="card rounded-lg p-3.5 sm:p-5" method="GET">
+        <div className="flex items-end gap-2.5 sm:gap-4">
+          <div className="flex-1 min-w-0">
+            <label htmlFor="period" className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              Periode
+            </label>
+            <input
+              id="period"
+              type="month"
+              name="period"
+              placeholder="Pilih Periode"
+              defaultValue={params.period ?? ''}
+              className="input text-xs font-bold cursor-pointer w-full"
+            />
+          </div>
 
-        <div className="w-full sm:w-auto min-w-[200px]">
-          <label htmlFor="period" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
-            Periode
-          </label>
-          <input
-            id="period"
-            type="month"
-            name="period"
-            defaultValue={params.period ?? ''}
-            className="input text-xs font-bold cursor-pointer"
-          />
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button type="submit" className="btn btn-primary text-xs sm:text-sm px-3 sm:px-5 whitespace-nowrap">
+              Terapkan
+            </button>
+            {params.period && (
+              <Link
+                href="/pembayaran"
+                className="btn btn-secondary text-xs px-2.5 sm:px-4"
+                title="Reset Filter"
+              >
+                Reset
+              </Link>
+            )}
+          </div>
         </div>
-
-        <button type="submit" className="btn btn-primary w-full sm:w-auto">
-          Terapkan Filter
-        </button>
       </form>
 
       {!result.ok ? (
@@ -167,7 +157,7 @@ export default async function PembayaranListPage({
           <Pagination
             meta={result.data.meta}
             basePath="/pembayaran"
-            searchParams={{ status: params.status, period: params.period }}
+            searchParams={{ period: params.period }}
           />
         </>
       )}

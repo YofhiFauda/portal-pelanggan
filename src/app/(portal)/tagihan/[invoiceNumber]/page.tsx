@@ -308,19 +308,6 @@ export default async function TagihanDetailPage({
                 </div>
               )}
             </div>
-
-            <div className="pt-2 border-t border-border flex items-center justify-between text-xs font-semibold">
-              <span className="text-text-muted flex items-center gap-1.5">
-                <HelpCircle className="w-4 h-4 text-text-muted" />
-                Pertanyaan tagihan?
-              </span>
-              <Link
-                href="/tiket"
-                className="text-brand-primary hover:underline font-bold inline-flex items-center gap-1 cursor-pointer"
-              >
-                Buat Tiket Bantuan →
-              </Link>
-            </div>
           </div>
         </div>
       </div>

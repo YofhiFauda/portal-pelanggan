@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowRight, CheckCircle2, QrCode, ShieldAlert } from 'lucide-react';
 import { callLaravel } from '@/lib/laravel-client';
 import { ClaimForm } from '@/components/ClaimForm';
 import type { QrResolveResponse } from '@/lib/types/portal-api';
@@ -18,7 +19,12 @@ export default async function KlaimPage({
   const { code } = await searchParams;
 
   if (!code) {
-    return <ErrorState message="Kode QR tidak ditemukan di URL." />;
+    return (
+      <ErrorState
+        title="QR Tidak Ditemukan"
+        message="Parameter kode QR tidak ditemukan pada URL permintaan."
+      />
+    );
   }
 
   const result = await callLaravel<QrResolveResponse>(`/qr/resolve?code=${encodeURIComponent(code)}`);
@@ -26,39 +32,81 @@ export default async function KlaimPage({
   if (!result.ok) {
     // 404 dari Laravel — token gak ketemu/signature salah/dicabut/pop
     // mismatch, SEMUA dijawab sama (anti-enumeration). Jangan detailin.
-    return <ErrorState message="Kode QR tidak valid atau sudah kedaluwarsa." />;
+    return (
+      <ErrorState
+        title="QR Tidak Valid"
+        message="Kode QR tidak valid, telah kedaluwarsa, atau sudah dicabut dari sistem."
+      />
+    );
   }
 
   if (result.data.account_status === 'active') {
     return (
-      <>
-        <h1 className="mb-4 text-center text-base font-semibold text-foreground">Akun Sudah Aktif</h1>
-        <p className="mb-4 text-center text-sm text-text-secondary">
-          Login ID <span className="font-semibold text-foreground">{result.data.login_id}</span> sudah
-          pernah diaktivasi. Silakan masuk dengan password Anda.
+      <div className="w-full text-center">
+        <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <CheckCircle2 className="h-7 w-7" />
+        </div>
+
+        <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          Status Akun Aktif
+        </span>
+        <h2 className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Akun Sudah Pernah Diaktivasi
+        </h2>
+
+        <p className="mt-2.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300 max-w-[300px] mx-auto">
+          Login ID <span className="font-mono font-bold text-slate-900 dark:text-white">{result.data.login_id}</span> sudah
+          terdaftar dan aktif. Silakan masuk menggunakan password Anda.
         </p>
-        <Link href="/login" className="btn btn-primary w-full">
-          Ke Halaman Masuk
-        </Link>
-      </>
+
+        <div className="mt-6">
+          <Link
+            href="/login"
+            className="w-full min-h-[48px] rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>Ke Halaman Masuk</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
     );
   }
 
-  // 'pending_claim' ATAU null (akun belum pernah dibuat sama sekali —
-  // jarang, biasanya ensureAccountExists() Laravel udah jalan bareng
-  // penerbitan QR) — dua-duanya diarahkan ke form klaim yang sama,
+  // 'pending_claim' ATAU null — diarahkan ke form klaim yang sama,
   // login_id sudah ke-isi dari hasil resolve, tinggal PIN + password baru.
   return <ClaimForm initialLoginId={result.data.login_id} lockLoginId />;
 }
 
-function ErrorState({ message }: { message: string }) {
+function ErrorState({ title, message }: { title: string; message: string }) {
   return (
-    <>
-      <h1 className="mb-4 text-center text-base font-semibold text-foreground">QR Tidak Valid</h1>
-      <p className="mb-4 text-center text-sm text-text-secondary">{message}</p>
-      <Link href="/login" className="btn btn-primary w-full">
-        Ke Halaman Masuk
-      </Link>
-    </>
+    <div className="w-full text-center">
+      <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400">
+        <ShieldAlert className="h-7 w-7" />
+      </div>
+
+      <div className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1">
+        <QrCode className="w-3.5 h-3.5" />
+        <span>Pemindaian QR Gagal</span>
+      </div>
+
+      <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{title}</h2>
+      <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300 max-w-[300px] mx-auto">{message}</p>
+
+      <div className="mt-6 flex flex-col gap-3">
+        <Link
+          href="/login"
+          className="w-full min-h-[48px] rounded-2xl bg-[#0084d1] hover:bg-[#0074b7] active:scale-[0.99] text-white font-bold text-sm sm:text-base shadow-[0_4px_14px_rgba(0,132,209,0.25)] hover:shadow-[0_6px_20px_rgba(0,132,209,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Masuk Secara Manual</span>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+        <Link
+          href="/aktivasi"
+          className="text-xs font-bold text-[#0084d1] hover:text-[#0074b7] hover:underline transition-colors"
+        >
+          Aktivasi Manual dengan Login ID & PIN
+        </Link>
+      </div>
+    </div>
   );
 }
