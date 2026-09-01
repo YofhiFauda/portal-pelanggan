@@ -1,11 +1,15 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
+import { Eye, EyeOff, Lock } from 'lucide-react';
 
 export function ChangePasswordForm() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<string[]>([]);
@@ -84,33 +88,59 @@ export function ChangePasswordForm() {
         <label htmlFor="current_password" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
           Password Saat Ini
         </label>
-        <input
-          id="current_password"
-          type="password"
-          required
-          autoComplete="current-password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder="••••••••••••"
-          className="input text-sm"
-        />
+        <div className="relative">
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+          <input
+            id="current_password"
+            type={showCurrent ? 'text' : 'password'}
+            required
+            autoComplete="current-password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="••••••••••••"
+            style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+            className="input text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => setShowCurrent((v) => !v)}
+            tabIndex={-1}
+            aria-label={showCurrent ? 'Sembunyikan password' : 'Tampilkan password'}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground transition-colors cursor-pointer"
+          >
+            {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
       <div>
         <label htmlFor="new_password" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
           Password Baru
         </label>
-        <input
-          id="new_password"
-          type="password"
-          required
-          minLength={10}
-          autoComplete="new-password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="••••••••••••"
-          className="input text-sm"
-        />
+        <div className="relative">
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+          <input
+            id="new_password"
+            type={showNew ? 'text' : 'password'}
+            required
+            minLength={10}
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="••••••••••••"
+            style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+            className="input text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => setShowNew((v) => !v)}
+            tabIndex={-1}
+            aria-label={showNew ? 'Sembunyikan password' : 'Tampilkan password'}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground transition-colors cursor-pointer"
+          >
+            {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
         {fieldErrors.length > 0 && (
           <ul className="mt-2 list-disc pl-5 text-xs text-red-600 dark:text-red-400 space-y-0.5 animate-fade-in-up">
             {fieldErrors.map((msg) => (
@@ -124,16 +154,29 @@ export function ChangePasswordForm() {
         <label htmlFor="confirm_password" className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-text-muted">
           Konfirmasi Password Baru
         </label>
-        <input
-          id="confirm_password"
-          type="password"
-          required
-          autoComplete="new-password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="••••••••••••"
-          className="input text-sm"
-        />
+        <div className="relative">
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+          <input
+            id="confirm_password"
+            type={showConfirm ? 'text' : 'password'}
+            required
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••••••"
+            style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+            className="input text-sm"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirm((v) => !v)}
+            tabIndex={-1}
+            aria-label={showConfirm ? 'Sembunyikan password' : 'Tampilkan password'}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground transition-colors cursor-pointer"
+          >
+            {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
       <button type="submit" disabled={loading} className="btn btn-primary !w-auto mt-2">

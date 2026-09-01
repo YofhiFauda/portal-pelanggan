@@ -1,7 +1,18 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
-import type { StaffTicketPriority, StaffTicketType } from '@/lib/types/portal-api';
+import type { StaffTicketOptionsResponse, StaffTicketPriority, StaffTicketType } from '@/lib/types/portal-api';
+
+/**
+ * Fallback kalau `GET /tickets/options` gagal diambil di server (lihat
+ * docblock `page.tsx`) — submit tetap harus bisa jalan tanpa Kategori Issue
+ * (backend-nya `nullable`), cuma Tipe Tiket & Prioritas yang wajib ada nilai.
+ */
+const FALLBACK_TYPES: { value: StaffTicketType; label: string }[] = [
+  { value: 'MTN', label: 'Maintenance' },
+  { value: 'C-REQ', label: 'Customer Request' },
+];
+const FALLBACK_PRIORITIES: StaffTicketPriority[] = ['low', 'Medium', 'High', 'Urgent'];
 
 /**
  * Form create tiket dari staf (scan QR → Portal). Satu percobaan submit bisa
@@ -12,9 +23,26 @@ import type { StaffTicketPriority, StaffTicketType } from '@/lib/types/portal-ap
  * analisa-unifikasi-qr-staff-portal.md §1.2/§2). Token TIDAK diulang kalau
  * gagal — staf boleh coba lagi pakai token yang sama (one-shot cuma
  * terkonsumsi setelah tiket beneran tersimpan).
+ *
+ * `options` (2026-08-31) — Tipe Tiket + Kategori Issue SAMA PERSIS sumbernya
+ * dengan form Helpdesk `/tickets/create`, biar tiket yang staf bikin lewat QR
+ * terklasifikasi selengkap yang dibikin Helpdesk, bukan cuma teks bebas.
+ * Pilih kategori auto-isi Prioritas (staf tetap boleh override manual),
+ * meniru `onIssueCategoryChange()` di `tickets/create.blade.php`.
  */
-export function StaffTicketForm({ staffToken }: { staffToken: string }) {
+export function StaffTicketForm({
+  staffToken,
+  options,
+}: {
+  staffToken: string;
+  options: StaffTicketOptionsResponse['data'] | null;
+}) {
+  const typeOptions = options?.types?.length ? options.types : FALLBACK_TYPES;
+  const priorityOptions = options?.priorities?.length ? options.priorities : FALLBACK_PRIORITIES;
+  const issueCategories = options?.issue_categories ?? [];
+
   const [type, setType] = useState<StaffTicketType>('MTN');
+  const [issueCategoryId, setIssueCategoryId] = useState<number | 'lainnya' | ''>('');
   const [detailKeluhan, setDetailKeluhan] = useState('');
   const [priority, setPriority] = useState<StaffTicketPriority>('Medium');
   const [loading, setLoading] = useState(false);
@@ -22,6 +50,21 @@ export function StaffTicketForm({ staffToken }: { staffToken: string }) {
   const [duplicateTicketNumber, setDuplicateTicketNumber] = useState<string | null>(null);
   const [success, setSuccess] = useState<{ ticket_number: string } | null>(null);
   const submittingRef = useRef(false);
+
+  function handleIssueCategoryChange(raw: string) {
+    if (raw === '' || raw === 'lainnya') {
+      setIssueCategoryId(raw as '' | 'lainnya');
+      return;
+    }
+
+    const id = Number(raw);
+    setIssueCategoryId(id);
+
+    const category = issueCategories.find((c) => c.id === id);
+    if (category) {
+      setPriority(category.default_priority);
+    }
+  }
 
   async function submit(confirmedDuplicate: boolean) {
     if (submittingRef.current) return;
@@ -36,6 +79,7 @@ export function StaffTicketForm({ staffToken }: { staffToken: string }) {
         body: JSON.stringify({
           staff_token: staffToken,
           type,
+          issue_category_id: typeof issueCategoryId === 'number' ? issueCategoryId : null,
           detail_keluhan: detailKeluhan,
           priority,
           confirmed_duplicate: confirmedDuplicate,
@@ -121,9 +165,37 @@ export function StaffTicketForm({ staffToken }: { staffToken: string }) {
             onChange={(e) => setType(e.target.value as StaffTicketType)}
             className="input text-sm"
           >
-            <option value="MTN">Maintenance (Gangguan)</option>
-            <option value="C-REQ">Change Request</option>
+            {typeOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.value} — {opt.label}
+              </option>
+            ))}
           </select>
+        </div>
+        <div>
+          <label htmlFor="issue_category" className="mb-1 block text-sm text-text-secondary">
+            Kategori Issue
+          </label>
+          <select
+            id="issue_category"
+            required
+            value={issueCategoryId}
+            onChange={(e) => handleIssueCategoryChange(e.target.value)}
+            className="input text-sm"
+          >
+            <option value="" disabled>
+              -- Pilih Kategori Issue --
+            </option>
+            {issueCategories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+            <option value="lainnya">Lainnya (isi manual)</option>
+          </select>
+          <p className="mt-1 text-xs text-text-muted">
+            Pilih kategori otomatis isi Prioritas. Pilih &quot;Lainnya&quot; kalau issue belum ada di master.
+          </p>
         </div>
         <div>
           <label htmlFor="priority" className="mb-1 block text-sm text-text-secondary">
@@ -135,10 +207,11 @@ export function StaffTicketForm({ staffToken }: { staffToken: string }) {
             onChange={(e) => setPriority(e.target.value as StaffTicketPriority)}
             className="input text-sm"
           >
-            <option value="low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Urgent">Urgent</option>
+            {priorityOptions.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
           </select>
         </div>
         <div>
@@ -153,10 +226,10 @@ export function StaffTicketForm({ staffToken }: { staffToken: string }) {
             value={detailKeluhan}
             onChange={(e) => setDetailKeluhan(e.target.value)}
             placeholder="Ceritakan keluhan pelanggan..."
-            className="input text-sm !min-h-0 py-2"
+            className="input text-sm !min-h-0 !py-3 h-32 resize-none"
           />
         </div>
-        <button type="submit" disabled={loading || !detailKeluhan} className="btn btn-primary w-full">
+        <button type="submit" disabled={loading || !detailKeluhan || !issueCategoryId} className="btn btn-primary w-full">
           {loading ? 'Mengirim...' : 'Buat Tiket'}
         </button>
       </form>

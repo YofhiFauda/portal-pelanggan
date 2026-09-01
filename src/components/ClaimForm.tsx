@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, Lock, User } from 'lucide-react';
 
 type ClaimErrorKind = 'generic' | 'already-claimed' | null;
 
@@ -18,6 +19,8 @@ export function ClaimForm({
   const [pin, setPin] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorKind, setErrorKind] = useState<ClaimErrorKind>(null);
@@ -114,16 +117,20 @@ export function ClaimForm({
           <label htmlFor="login_id" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Login ID
           </label>
-          <input
-            id="login_id"
-            type="text"
-            required
-            readOnly={lockLoginId}
-            value={loginId}
-            onChange={(e) => setLoginId(e.target.value)}
-            placeholder="PNG00RQ000631"
-            className={`input text-sm ${lockLoginId ? 'bg-surface-muted text-text-muted cursor-not-allowed' : ''}`}
-          />
+          <div className="relative">
+            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+            <input
+              id="login_id"
+              type="text"
+              required
+              readOnly={lockLoginId}
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              placeholder="PNG00RQ000631"
+              style={{ paddingLeft: '2.5rem' }}
+              className={`input text-sm ${lockLoginId ? 'bg-surface-muted text-text-muted cursor-not-allowed' : ''}`}
+            />
+          </div>
         </div>
 
         <div>
@@ -148,17 +155,30 @@ export function ClaimForm({
           <label htmlFor="new_password" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Password Baru
           </label>
-          <input
-            id="new_password"
-            type="password"
-            required
-            minLength={10}
-            autoComplete="new-password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="••••••••••••"
-            className="input text-sm"
-          />
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+            <input
+              id="new_password"
+              type={showNewPassword ? 'text' : 'password'}
+              required
+              minLength={10}
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="••••••••••••"
+              style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+              className="input text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => setShowNewPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showNewPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground transition-colors cursor-pointer"
+            >
+              {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
           {fieldErrors.length > 0 && (
             <ul className="mt-2 list-disc pl-5 text-xs text-red-600 dark:text-red-400 space-y-0.5 animate-fade-in-up">
               {fieldErrors.map((msg) => (
@@ -172,16 +192,29 @@ export function ClaimForm({
           <label htmlFor="confirm_password" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Konfirmasi Password
           </label>
-          <input
-            id="confirm_password"
-            type="password"
-            required
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="••••••••••••"
-            className="input text-sm"
-          />
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+            <input
+              id="confirm_password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              required
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="••••••••••••"
+              style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+              className="input text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showConfirmPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground transition-colors cursor-pointer"
+            >
+              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
         <button type="submit" disabled={loading} className="btn btn-primary w-full mt-2">

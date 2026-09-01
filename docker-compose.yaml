@@ -11,9 +11,15 @@ services:
       - /app/node_modules
       - /app/.next
     environment:
+      # WATCHPACK_POLLING/CHOKIDAR_USEPOLLING SENGAJA dilepas (2026-08-31) —
+      # bind mount `.:/app` sumbernya native WSL2 ext4 (compose file ini
+      # tinggal di /home/.../portal-pelanggan, BUKAN drive Windows/NTFS),
+      # jadi inotify native udah jalan normal. Mode polling maksa Node
+      # stat-ing SELURUH project tiap file-watch tick tanpa henti selama
+      # container hidup — beban CPU/disk terus-menerus yang gak perlu di
+      # sini. Nyalakan lagi CUMA kalau project ini dipindah balik ke mount
+      # dari drive Windows (D:\ dst).
       - NODE_ENV=development
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
     networks:
       - default
       - whusnet_network

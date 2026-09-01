@@ -3,11 +3,13 @@
 import { useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, Lock, User } from 'lucide-react';
 
 export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean }) {
   const router = useRouter();
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Ref, bukan state `loading` doang — klik/Enter dobel yang kejadian di tick
@@ -79,32 +81,49 @@ export function LoginForm({ sessionExpired = false }: { sessionExpired?: boolean
           <label htmlFor="login_id" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Login ID
           </label>
-          <input
-            id="login_id"
-            type="text"
-            required
-            autoComplete="username"
-            value={loginId}
-            onChange={(e) => setLoginId(e.target.value)}
-            placeholder="PNG00RQ000631"
-            className="input text-sm"
-          />
+          <div className="relative">
+            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+            <input
+              id="login_id"
+              type="text"
+              required
+              autoComplete="username"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              placeholder="PNG00RQ000631"
+              style={{ paddingLeft: '2.5rem' }}
+              className="input text-sm"
+            />
+          </div>
         </div>
 
         <div>
           <label htmlFor="password" className="mb-2 block text-xs font-bold uppercase tracking-wider text-text-muted">
             Password
           </label>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••••••"
-            className="input text-sm"
-          />
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••"
+              style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+              className="input text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              tabIndex={-1}
+              aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-foreground transition-colors cursor-pointer"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
         <button type="submit" disabled={loading} className="btn btn-primary w-full">

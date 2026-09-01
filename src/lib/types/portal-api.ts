@@ -247,9 +247,34 @@ export type StaffTicketPriority = 'low' | 'Medium' | 'High' | 'Urgent';
 
 export interface StaffTicketCreateRequest {
   type: StaffTicketType;
+  issue_category_id?: number | null;
   detail_keluhan: string;
   priority: StaffTicketPriority;
   confirmed_duplicate?: boolean;
+}
+
+/** Satu opsi dropdown Tipe Tiket — `value` dikirim balik di `type` submit. */
+export interface StaffTicketTypeOption {
+  value: StaffTicketType;
+  label: string;
+}
+
+/** Satu Kategori Issue Master — sama sumbernya dengan dropdown Helpdesk. */
+export interface StaffIssueCategory {
+  id: number;
+  name: string;
+  default_priority: StaffTicketPriority;
+  sla_source: 'paket' | 'prioritas';
+}
+
+/** `GET /tickets/options` — dipanggil sekali di Server Component halaman
+ *  `/staff/tickets`, TIDAK mengonsumsi `StaffPortalToken` (baca doang). */
+export interface StaffTicketOptionsResponse {
+  data: {
+    types: StaffTicketTypeOption[];
+    priorities: StaffTicketPriority[];
+    issue_categories: StaffIssueCategory[];
+  };
 }
 
 export interface StaffTicketCreateResponse {

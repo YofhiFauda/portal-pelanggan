@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { callLaravel } from '@/lib/laravel-client';
 import { StatusBadge } from '@/components/StatusBadge';
 import { MoneyDisplay } from '@/components/MoneyDisplay';
@@ -6,7 +5,8 @@ import { DateDisplay } from '@/components/DateDisplay';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorBanner } from '@/components/ErrorBanner';
 import { Pagination } from '@/components/Pagination';
-import { CreditCard, FileDown } from 'lucide-react';
+import { ReceiptActions } from '@/components/ReceiptActions';
+import { CreditCard } from 'lucide-react';
 import type { PaginatedData, PaymentListItem } from '@/lib/types/portal-api';
 
 const STATUS_OPTIONS = [
@@ -123,15 +123,7 @@ export default async function PembayaranListPage({
                       />
                     </td>
                     <td className="px-6 py-4">
-                      {p.has_receipt && (
-                        <Link
-                          href={`/pembayaran/${p.payment_number}/kwitansi`}
-                          className="inline-flex items-center gap-1 text-brand-primary font-bold hover:underline cursor-pointer group"
-                        >
-                          <FileDown className="w-4 h-4 text-brand-primary transition-transform group-hover:translate-y-0.5 duration-200" />
-                          <span>Kwitansi</span>
-                        </Link>
-                      )}
+                      {p.has_receipt && <ReceiptActions paymentNumber={p.payment_number} />}
                     </td>
                   </tr>
                 ))}
@@ -165,13 +157,7 @@ export default async function PembayaranListPage({
 
                 {p.has_receipt && (
                   <div className="pt-3 border-t border-border border-dashed flex justify-end">
-                    <Link
-                      href={`/pembayaran/${p.payment_number}/kwitansi`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:underline cursor-pointer"
-                    >
-                      <FileDown className="w-4 h-4 text-brand-primary" />
-                      <span>Lihat Kwitansi</span>
-                    </Link>
+                    <ReceiptActions paymentNumber={p.payment_number} compact />
                   </div>
                 )}
               </div>

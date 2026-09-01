@@ -53,7 +53,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Main Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         {/* Profile Card */}
         <div className="card rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
                   href={`/tagihan/${nearestInvoice.invoice_number}`}
                   className="btn btn-primary !min-h-0 !px-3 !py-1.5 text-xs"
                 >
-                  Bayar
+                  Cek Tagihan
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>

@@ -134,3 +134,56 @@ export async function callLaravel<T>(
   // bentuknya (tipe T persis dari portal-api.ts), unwrap kalau perlu.
   return { ok: true, status: res.status, data: body as T };
 }
+
+export type BinaryResult =
+  | { ok: true; status: number; body: ReadableStream<Uint8Array>; contentType: string; contentDisposition: string | null }
+  | { ok: false; status: number; message: string };
+
+/**
+ * Sepupu `callLaravel()` khusus respons NON-JSON (kwitansi PDF) — satu-
+ * satunya alasan ada fungsi terpisah: `callLaravel()` selalu `res.json()`
+ * body-nya, yang bikin PDF binary korup kalau dipaksa lewat situ. Header
+ * (`X-Portal-Client`, refresh-on-401) & base URL tetap SATU sumber sama
+ * lewat modul ini — TIDAK ada `fetch()` manual ke `LARAVEL_API_URL` di
+ * Route Handler manapun, tetap sesuai larangan #4/#5.
+ */
+export async function callLaravelBinary(path: string, init: CallLaravelInit = {}): Promise<BinaryResult> {
+  const { auth, headers: initHeaders, ...restInit } = init;
+
+  const headers = new Headers(initHeaders);
+  headers.set('X-Portal-Client', getClientSecret());
+
+  if (auth) {
+    const session = await getSession();
+    if (!session.accessToken) {
+      return { ok: false, status: 401, message: 'Sesi tidak ada.' };
+    }
+    headers.set('Authorization', `Bearer ${session.accessToken}`);
+  }
+
+  let res = await fetch(`${getLaravelBaseUrl()}${path}`, { ...restInit, headers });
+
+  if (res.status === 401 && auth) {
+    const refreshed = await tryRefresh();
+    if (refreshed) {
+      headers.set('Authorization', `Bearer ${refreshed.accessToken}`);
+      res = await fetch(`${getLaravelBaseUrl()}${path}`, { ...restInit, headers });
+    } else {
+      await clearSession();
+      return { ok: false, status: 401, message: 'Sesi tidak valid, silakan login ulang.' };
+    }
+  }
+
+  if (!res.ok || !res.body) {
+    const body = await res.json().catch(() => ({}));
+    return { ok: false, status: res.status, message: body.message ?? 'Terjadi kesalahan.' };
+  }
+
+  return {
+    ok: true,
+    status: res.status,
+    body: res.body,
+    contentType: res.headers.get('content-type') ?? 'application/octet-stream',
+    contentDisposition: res.headers.get('content-disposition'),
+  };
+}

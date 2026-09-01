@@ -1,6 +1,7 @@
 import { callLaravel } from '@/lib/laravel-client';
 import { StaffKolektorPaymentForm } from '@/components/StaffKolektorPaymentForm';
 import type { StaffKolektorWorklistResponse } from '@/lib/types/portal-api';
+import { AlertCircle, CheckCircle2, ShieldAlert, User } from 'lucide-react';
 
 /**
  * Tujuan scan QR kolektor (2026-08-29) — `QrScanController` (Laravel)
@@ -21,13 +22,16 @@ export default async function StaffKolektorPage({
 
   if (!code || !staffToken) {
     return (
-      <>
-        <h1 className="mb-4 text-center text-base font-medium text-foreground">Tautan Tidak Lengkap</h1>
-        <p className="text-center text-sm text-text-secondary">
-          Kode QR atau token staf tidak ada di URL. Scan ulang QR pelanggan lewat halaman{' '}
-          <span className="font-medium">Scan QR</span> di app Operasional.
+      <div className="flex flex-col items-center text-center py-4">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 mb-4 animate-pulse">
+          <AlertCircle className="h-7 w-7" />
+        </div>
+        <h1 className="mb-2 text-lg font-bold text-foreground">Tautan Tidak Lengkap</h1>
+        <p className="text-sm text-text-secondary max-w-sm leading-relaxed">
+          Kode QR atau token staf tidak ditemukan di URL. Silakan scan ulang QR pelanggan lewat halaman{' '}
+          <span className="font-semibold text-foreground">Scan QR</span> di aplikasi Operasional Anda.
         </p>
-      </>
+      </div>
     );
   }
 
@@ -37,18 +41,22 @@ export default async function StaffKolektorPage({
   );
 
   if (!result.ok) {
-    const message =
-      result.status === 403
-        ? 'Pelanggan ini bukan tanggung jawab Anda.'
-        : result.status === 401
-          ? 'Token sudah kedaluwarsa atau sudah dipakai — scan ulang QR pelanggan.'
-          : 'Kode QR tidak valid.';
+    const isForbidden = result.status === 403;
+    const isUnauthorized = result.status === 401;
+    const message = isForbidden
+      ? 'Pelanggan ini di luar wilayah tanggung jawab Anda.'
+      : isUnauthorized
+        ? 'Token akses sudah kedaluwarsa atau telah digunakan. Silakan scan ulang QR pelanggan.'
+        : 'Kode QR pelanggan tidak valid atau tidak dikenali.';
 
     return (
-      <>
-        <h1 className="mb-4 text-center text-base font-medium text-foreground">Tidak Bisa Lanjut</h1>
-        <p className="text-center text-sm text-text-secondary">{message}</p>
-      </>
+      <div className="flex flex-col items-center text-center py-4">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 text-red-600 dark:text-red-400 mb-4">
+          <ShieldAlert className="h-7 w-7" />
+        </div>
+        <h1 className="mb-2 text-lg font-bold text-foreground">Akses Ditolak</h1>
+        <p className="text-sm text-text-secondary max-w-sm leading-relaxed">{message}</p>
+      </div>
     );
   }
 
@@ -56,13 +64,29 @@ export default async function StaffKolektorPage({
 
   if (invoices.length === 0) {
     return (
-      <>
-        <h1 className="mb-1 text-center text-base font-medium text-foreground">{customer.full_name}</h1>
-        <p className="mb-4 text-center text-sm text-text-muted">{customer.customer_code}</p>
-        <p className="text-center text-sm text-text-secondary">
-          Tidak ada tagihan tertunggak untuk pelanggan ini.
+      <div className="flex flex-col items-center text-center py-4">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4">
+          <CheckCircle2 className="h-7 w-7" />
+        </div>
+        
+        {/* Customer profile snippet card */}
+        <div className="mb-4 rounded-xl border border-border/80 bg-surface-muted/30 px-5 py-3.5 w-full max-w-xs text-left">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
+              {customer.full_name.slice(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-foreground leading-tight">{customer.full_name}</h2>
+              <span className="text-xs text-text-muted font-mono">{customer.customer_code}</span>
+            </div>
+          </div>
+        </div>
+
+        <h1 className="mb-2 text-lg font-bold text-foreground">Semua Tagihan Lunas</h1>
+        <p className="text-sm text-text-secondary max-w-sm leading-relaxed">
+          Tidak ada tagihan tertunggak atau invoice aktif yang perlu ditagih untuk pelanggan ini saat ini.
         </p>
-      </>
+      </div>
     );
   }
 

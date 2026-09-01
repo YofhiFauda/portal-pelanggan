@@ -14,6 +14,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <p className="text-3xl font-extrabold font-display tracking-tight text-brand-primary">
             Whusnet
           </p>
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Layanan Aktif</span>
+          </div>
         </div>
 
         <div className="card rounded-lg p-8">
