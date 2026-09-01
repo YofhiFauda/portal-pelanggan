@@ -20,6 +20,12 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Portal Pelanggan",
   description: "Portal Pelanggan Whusnet",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icon-192.png",
+  },
 };
 
 export default function RootLayout({
