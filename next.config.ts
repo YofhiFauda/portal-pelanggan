@@ -14,6 +14,7 @@ if (appUrl) {
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: "standalone",
   allowedDevOrigins,
   turbopack: {
     root: __dirname,

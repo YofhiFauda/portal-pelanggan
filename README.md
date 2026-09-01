@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portal Pelanggan — Whusnet
 
-## Getting Started
+Aplikasi web **Backend-for-Frontend (BFF)** berbasis Next.js (App Router)
+untuk pelanggan ISP Whusnet melihat tagihan, pembayaran, saldo, dan tiket
+keluhan mereka sendiri. Repo ini **tidak punya database sendiri** — semua
+data dan business logic hidup di API Laravel (`whusnet-operasional`, repo
+terpisah), diakses lewat `/api/customer-portal/*`.
 
-First, run the development server:
+Selain pelanggan, repo ini juga melayani dua peran **staf lapangan** lewat
+scan QR fisik (bukan login manual): **kolektor** (mencatat pembayaran
+tunai/transfer di lokasi) dan **staf pembuat tiket** (membuat tiket
+keluhan/pemasangan atas nama pelanggan yang di-scan).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> ⚠️ **Sebelum menulis kode apa pun**, baca [`AGENTS.md`](./AGENTS.md) —
+> versi Next.js di sini punya breaking changes dari apa yang mungkin sudah
+> kamu tahu. Dokumentasinya ada di `node_modules/next/dist/docs/`.
+
+## Daftar Isi
+
+- [Ringkasan Arsitektur](#ringkasan-arsitektur)
+- [Menjalankan Secara Lokal](#menjalankan-secara-lokal)
+- [Environment Variables](#environment-variables)
+- [Struktur Folder](#struktur-folder)
+- [Konvensi Wajib](#konvensi-wajib)
+- [Skrip npm](#skrip-npm)
+- [Docker](#docker)
+- [Dokumentasi Lengkap](#dokumentasi-lengkap)
+
+## Ringkasan Arsitektur
+
+Next.js berperan sebagai **Backend-for-Frontend**: browser tidak pernah
+bicara langsung ke Laravel. Semua panggilan API lewat Route Handler
+(`app/api/**/route.ts`) atau langsung dari Server Component.
+
+```mermaid
+flowchart LR
+    B["Browser\n(Client Component)"] -->|fetch, sama-origin| RH["Route Handler\napp/api/**/route.ts"]
+    B -.->|render SSR, tanpa JS| SC["Server Component\napp/(portal)/**/page.tsx"]
+    RH --> LC["lib/laravel-client.ts\ncallLaravel() — satu pintu"]
+    SC --> LC
+    LC -->|"Bearer token / X-Portal-Client"| L["Laravel API\n/api/customer-portal/*"]
+    L --> DB[(MySQL\ndi repo Laravel)]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Alasan utamanya keamanan token: `access_token`/`refresh_token` disimpan di
+cookie `httpOnly` (`portal_session`, di-encode `iron-session`) — tidak
+pernah tersentuh JavaScript browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Peran | Cara masuk | Halaman |
+|---|---|---|
+| Pelanggan | Aktivasi (`login_id`+PIN dari kartu QR) lalu login password | `/login`, `/aktivasi`, `/dashboard`, `/tagihan`, `/pembayaran`, `/saldo`, `/tiket`, `/profil` |
+| Tamu scan QR | Scan QR kartu pelanggan → redirect otomatis | `/klaim?code=` |
+| Staf kolektor | Scan QR dari app Operasional, token one-shot di URL | `/staff/kolektor?code=&staff_token=` |
+| Staf tiket | Scan QR dari app Operasional, token one-shot di URL | `/staff/tickets?code=&staff_token=` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Penjelasan lengkap tiap domain (auth, tagihan, pembayaran, saldo, tiket,
+alur staf), diagram user flow, dan spesifikasi tiap halaman ada di
+[`docs/DOKUMENTASI-PROJEK.md`](./docs/DOKUMENTASI-PROJEK.md).
 
-## Learn More
+## Menjalankan Secara Lokal
 
-To learn more about Next.js, take a look at the following resources:
+Butuh Node.js 24+ dan API `whusnet-operasional` yang sudah jalan (repo ini
+tidak bisa berdiri sendiri — semua data dari sana).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Buka [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Buat `.env.local` (tidak ikut commit) dengan:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+LARAVEL_API_URL=http://localhost:8000/api/customer-portal
+PORTAL_CLIENT_SECRET=<sama dengan PORTAL_CLIENT_SECRET di Laravel>
+SESSION_COOKIE_SECRET=<untuk sign/encode cookie sesi, generate sendiri, ≥32 karakter>
+```
+
+Ketiganya **hanya** dibaca dari Route Handler/Server Component (server-side)
+— jangan pernah diprefix `NEXT_PUBLIC_`, dan jangan pernah difetch langsung
+dari Client Component.
+
+## Struktur Folder
+
+```
+src/
+  app/
+    (auth)/          layout tanpa nav — login, aktivasi, klaim (resolve QR)
+    (portal)/        layout berauth — sidebar desktop + bottom nav mobile
+    (print)/         layout terpisah, print-friendly — kwitansi
+    (staff)/staff/   layout tanpa nav, khusus token one-shot QR staf
+    api/             Route Handler — proxy tipis ke Laravel
+  components/        komponen shared (StatusBadge, MoneyDisplay, DateDisplay,
+                      Pagination, EmptyState, ErrorBanner, SkeletonRows, dst)
+  lib/
+    laravel-client.ts   satu-satunya pintu fetch ke Laravel (auth, refresh-on-401)
+    session.ts          baca/tulis/hapus cookie sesi (iron-session)
+    types/portal-api.ts  kontrak tipe — turunan business-logic.md Laravel
+  proxy.ts           gerbang cookie sebelum render (dulu middleware.ts)
+```
+
+## Konvensi Wajib
+
+Ringkas — daftar lengkap ada di §9 `docs/DOKUMENTASI-PROJEK.md`:
+
+1. **Tidak boleh** ada database/ORM sisi Next.js — semua data dari Laravel.
+2. Env rahasia **tidak boleh** diprefix `NEXT_PUBLIC_`.
+3. Token **tidak boleh** disimpan `localStorage` atau cookie non-`httpOnly`.
+4. Client Component **tidak boleh** `fetch()` langsung ke `LARAVEL_API_URL`
+   — selalu lewat Route Handler sendiri.
+5. Semua panggilan ke Laravel lewat `lib/laravel-client.ts`.
+6. Label status Indonesia tidak di-hardcode ulang — pakai `label` dari API.
+7. 404 "tidak ada" vs "milik pelanggan lain" tidak dibedakan tampilannya
+   (anti-enumeration).
+8. Nominal uang tidak disimpan sebagai `number`/`float` di state — selalu
+   string desimal dari backend, diparse hanya saat format tampilan.
+9. Tidak membuat UI untuk fitur yang endpoint-nya belum ada.
+10. Tidak ada rute publik "lihat tagihan tanpa akun" di Portal ini.
+
+## Docker
+
+`Dockerfile` (multi-stage: deps → builder → runner, output `standalone`)
+dan `docker-compose.yaml` ada di root repo. Container ini diharapkan jalan
+di **network Docker yang sama** dengan `whusnet-operasional` (lihat komentar
+`networks.whusnet_network` di `docker-compose.yaml`) — Next.js memanggil
+Laravel lewat nama container, bukan `localhost`.
+
+```bash
+docker compose up
+```
+
+## Dokumentasi Lengkap
+
+- [`AGENTS.md`](./AGENTS.md) — catatan penting versi Next.js yang dipakai
+  (breaking changes dari versi umum), wajib dibaca sebelum ubah kode.
+- [`docs/DOKUMENTASI-PROJEK.md`](./docs/DOKUMENTASI-PROJEK.md) — dokumentasi
+  utama: arsitektur, business logic per domain, user flow (diagram),
+  auth & siklus sesi, peta route ↔ endpoint Laravel, model data, spesifikasi
+  tiap halaman, tabel kode error, dan detail tiap komponen.
+- [`frontend-nextjs-rancangan.md`](./frontend-nextjs-rancangan.md) —
+  blueprint/rancangan awal proyek.
+- [`docs/api/postman/`](./docs/api/postman/) — koleksi Postman API.

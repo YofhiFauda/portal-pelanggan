@@ -17,6 +17,8 @@ import type { ApiEnvelope, MeProfile } from '@/lib/types/portal-api';
  * cookie, jadi kalau cookie basi gak dihapus dulu, proxy.ts bakal terus
  * liat cookie ADA dan lempar balik ke sini lagi → redirect loop.
  */
+export const dynamic = 'force-dynamic';
+
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const result = await callLaravel<ApiEnvelope<MeProfile>>('/me', { auth: true });
 

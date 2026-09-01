@@ -4,6 +4,8 @@ services:
       context: .
       target: builder
     command: npm run dev -- --port 3001
+    # pada tahap production dengan berbeda server dari operasional kembalikan lagi menjadi 3000
+    # saa rubah 3001 karena bentrok dengan aplpine di Operasional
     ports:
       - "3001:3001"
     volumes:
